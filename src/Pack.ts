@@ -78,12 +78,7 @@ export namespace Pack {
 
 	export async function upgrade(pack: Pack) {
 		for (const fix of Fixes) {
-			if (fix.type === 'meta') {
-				fix.fix(pack.meta, 'pack')
-			} else {
-				Object.entries(pack.data[fix.type])
-					.forEach(([id, data]) => fix.fix(id, data))
-			}
+			fix(pack)
 		}
 	}
 }

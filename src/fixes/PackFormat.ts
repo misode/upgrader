@@ -1,5 +1,9 @@
-import { Fix } from '../Fix'
+import type { Fix } from '../Fix'
+import type { Pack } from '../Pack'
 
-export const PackFormat = Fix.create('meta', (data) => {
-	data.pack.pack_format = 7
-})
+/**
+ * Sets the pack.mcmeta "pack_format" to 7
+ */
+export const PackFormat: Fix = (pack: Pack) => {
+	pack.meta.pack.pack_format = 7
+}

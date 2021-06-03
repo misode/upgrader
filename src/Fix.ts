@@ -1,11 +1,25 @@
-import type { categories } from './Pack'
+import type { categories, Pack } from './Pack'
 
-export type Fix = {
-	type: 'meta' | typeof categories[number],
-	fix: (data: any, id: string) => unknown,
-}
+export type Fix = (pack: Pack) => unknown
+
 export namespace Fix {
-	export function create(type: Fix['type'], fix: Fix['fix']): Fix {
-		return { type, fix }
+	/**
+	 * Runs each fix after each other
+	 */
+	export function all(fixes: Fix[]): Fix {
+		return (pack) => {
+			fixes.forEach(fix => fix(pack))
+		}
+	}
+
+	/**
+	 * A simple fix that runs on one file category
+	 */
+	export function onFile(category: typeof categories[number], fix: (data: any) => unknown): Fix {
+		return (pack) => {
+			for (const [_id, data] of Object.entries(pack.data[category])) {
+				fix(data)
+			}
+		}
 	}
 }
