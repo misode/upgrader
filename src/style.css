@@ -81,6 +81,7 @@ main {
 	top: 0;
 	right: 0;
 	padding: 10px 15px;
+	fill: #fff;
 	cursor: pointer;
 	user-select: none;
 	-moz-user-select: none;
@@ -114,7 +115,7 @@ main {
 .pack {
 	display: flex;
 	align-items: center;
-	padding: 5px;
+	padding: 8px;
 	background-color: var(--dark-2);
 	border-radius: 10px;
 	margin-bottom: 15px;
@@ -123,7 +124,12 @@ main {
 .pack-status {
 	padding: 5px;
 	margin-right: 10px;
-	border-radius: 5px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.pack-status:hover {
+	background-color: var(--dark-3);
 }
 
 .pack-status > svg {
@@ -133,8 +139,12 @@ main {
 	fill: #ccc;
 }
 
-.pack-status:hover {
-	background-color: var(--dark-3);
+.pack-status.download > svg {
+	fill: #3a96ff;
+}
+
+.pack-status.alert > svg {
+	fill: #ffd255;
 }
 
 .pack-status.loading > svg {

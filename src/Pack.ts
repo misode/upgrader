@@ -1,7 +1,7 @@
 import JSZip from 'jszip'
+import { Fixes } from './fixes'
 
-
-const categories = [
+export const categories = [
 	'dimension',
 	'dimension_type',
 	'worldgen/biome',
@@ -76,7 +76,14 @@ export namespace Pack {
 		zip.file(path, text)
 	}
 
-	export async function upgrade(_pack: Pack) {
-		// TODO
+	export async function upgrade(pack: Pack) {
+		for (const fix of Fixes) {
+			if (fix.type === 'meta') {
+				fix.fix(pack.meta, 'pack')
+			} else {
+				Object.entries(pack.data[fix.type])
+					.forEach(([id, data]) => fix.fix(id, data))
+			}
+		}
 	}
 }
