@@ -15,6 +15,9 @@ export const NoiseSettings = Fix.all([
 function fixNoiseSettings(data: any) {
 	if (typeof data !== 'object') return
 
+	if (data.bedrock_roof_position <= -10) data.bedrock_roof_position = -2147483648
+	if (data.bedrock_floor_position <= -10) data.bedrock_floor_position = -2147483648
+
 	data.min_surface_level = 0
 	data.noise_caves_enabled = false
 	data.noodle_caves_enabled = false

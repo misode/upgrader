@@ -16,6 +16,7 @@ export const categories = [
 
 export type Pack = {
 	name: string,
+	zip: JSZip,
 	meta: any,
 	data: {
 		[category: string]: Record<string, any>,
@@ -27,7 +28,7 @@ export namespace Pack {
 		const buffer = await file.arrayBuffer()
 		const zip = await JSZip.loadAsync(buffer)
 
-		const pack: Pack = { name: file.name, data: {} } as Pack
+		const pack: Pack = { name: file.name, zip, data: {} } as Pack
 		await Promise.all(categories.map(async category => {
 			pack.data[category] = await loadCategory(zip, category)
 		}))
@@ -47,19 +48,23 @@ export namespace Pack {
 	async function loadJson(zip: JSZip, path: string) {
 		const file = zip.files[path]
 		if (!file) {
-			throw new Error(`Cannot find "${path}"`)
+			throw new Error(`Cannot find "${path}".`)
 		}
-		const text = await file.async('text')
-		return JSON.parse(text)
+		try {
+			let text = await file.async('text')
+			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
+			return JSON.parse(text)
+		} catch (e) {
+			throw new Error(`Cannot parse "${path}": ${e.message}.`)
+		}
 	}
 
 	export async function toZip(pack: Pack) {
-		const zip = new JSZip()
 		categories.forEach(category => {
-			writeCategory(zip, category, pack.data[category])
+			writeCategory(pack.zip, category, pack.data[category])
 		})
-		writeJson(zip, 'pack.mcmeta', pack.meta)
-		const blob = await zip.generateAsync({ type: 'blob'})
+		writeJson(pack.zip, 'pack.mcmeta', pack.meta)
+		const blob = await pack.zip.generateAsync({ type: 'blob'})
 		return URL.createObjectURL(blob)
 	}
 	
@@ -77,8 +82,15 @@ export namespace Pack {
 	}
 
 	export async function upgrade(pack: Pack) {
-		for (const fix of Fixes) {
-			fix(pack)
+		if (pack.meta.pack.pack_format === 7) return { warnings: [] }
+
+		const warnings: string[] = []
+		const ctx = {
+			warn: (message: string) => warnings.push(message),
 		}
+		for (const fix of Fixes) {
+			fix(pack, ctx)
+		}
+		return { warnings }
 	}
 }

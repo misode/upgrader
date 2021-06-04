@@ -38,6 +38,7 @@ export function App() {
 	}
 
 	const onUpgradeError = (error: Error) => {
+		console.error(error)
 		setErrors([...errors, { process: 'upgrading', error }])
 	}
 
@@ -56,15 +57,17 @@ export function App() {
 				<p>Source code on <a href="https://github.com/misode/upgrader" target="_blank">GitHub</a></p>
 			</div>
 		</>}
-		{errors.map(e => {
-			const title = `${e.error.name}: ${e.error.message}`
-			const body = `An error occurred while ${e.process} a data pack.\nData Pack: <!-- ATTACH YOUR DATAPACK HERE -->\n\n\`\`\`\n${e.error.stack}\n\`\`\`\n`
-			const url = `https://github.com/misode/upgrader/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}\n`
-			return <div class="error">
-				<p>Something went wrong {e.process} the data pack:</p>
-				<p class="error-message">{e.error.message}</p>
-				<p>You can report this as a bug <a href={url} target="_blank">on GitHub</a> and upload the data pack</p>
-				<div class="error-close" onClick={() => setErrors(errors.filter(f => f.error.message !== e.error.message || f.process !== e.process))}>{Octicon.x}</div>
-			</div>})}
+		<div class="main-errors">
+			{errors.map(e => {
+				const title = `${e.error.name}: ${e.error.message}`
+				const body = `An error occurred while ${e.process} a data pack.\nData Pack: <!-- ATTACH YOUR DATAPACK HERE -->\n\n\`\`\`\n${e.error.stack}\n\`\`\`\n`
+				const url = `https://github.com/misode/upgrader/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}\n`
+				return <div class="main-error">
+					<p>Something went wrong {e.process} the data pack:</p>
+					<p class="error-message">{e.error.message}</p>
+					<p>You can report this as a bug <a href={url} target="_blank">on GitHub</a> and upload the data pack</p>
+					<div class="error-close" onClick={() => setErrors(errors.filter(f => f.error.message !== e.error.message || f.process !== e.process))}>{Octicon.x}</div>
+				</div>})}
+		</div>
 	</main>
 }
