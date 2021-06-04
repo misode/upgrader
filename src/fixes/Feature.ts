@@ -168,7 +168,7 @@ function fixDecorator(data: any, _ctx: FixContext) {
 				data.config = {}
 				break
 			}
-			let chance = 1 / data.config.probability
+			const chance = 1 / data.config.probability
 			data.type = 'minecraft:decorated'
 			data.config = combinedDecorators(
 				{ type: 'minecraft:carving_mask', config: { step: data.config.step } },
@@ -210,16 +210,16 @@ function fixDecorator(data: any, _ctx: FixContext) {
 			)
 			break
 		case 'lava_lake':
-			chance = data.config.chance / 10
+			const chance2 = data.config.chance / 10
 			data.type = 'minecraft:decorated'
 			data.config = combinedDecorators(
-				...Number.isInteger(chance) ? [
-					{ type: 'minecraft:chance', config: { chance: chance } },
+				...Number.isInteger(chance2) ? [
+					{ type: 'minecraft:chance', config: { chance: chance2 } },
 				] : [
 					{ type: 'minecraft:count_extra', config: {
 						count: 0,
 						extra_count: 1,
-						extra_chance: 1 / chance,
+						extra_chance: 1 / chance2,
 					} },
 				],
 				{ type: 'minecraft:square', config: {} },
@@ -233,7 +233,7 @@ function fixDecorator(data: any, _ctx: FixContext) {
 			)
 			break
 		case 'fire':
-			let count = typeof data.config.count === 'number' ? data.config.count : data.config.count.base + data.config.count.spread / 2
+			const count = typeof data.config.count === 'number' ? data.config.count : data.config.count.base + data.config.count.spread / 2
 			data.type = 'minecraft:decorated'
 			data.config = combinedDecorators(
 				{ type: 'minecraft:count', config: { count: {
@@ -251,13 +251,13 @@ function fixDecorator(data: any, _ctx: FixContext) {
 			)
 			break
 		case 'glowstone':
-			count = typeof data.config.count === 'number' ? data.config.count : data.config.count.base + data.config.count.spread / 2
+			const count2 = typeof data.config.count === 'number' ? data.config.count : data.config.count.base + data.config.count.spread / 2
 			data.type = 'minecraft:decorated'
 			data.config = combinedDecorators(
 				{ type: 'minecraft:count', config: { count: {
 					type: 'minecraft:biased_to_bottom', value: {
 						min_inclusive: 0,
-						max_inclusive: Math.ceil(count - 1),
+						max_inclusive: Math.ceil(count2 - 1),
 					},
 				} } },
 				{ type: 'minecraft:square', config: {} },
@@ -269,8 +269,8 @@ function fixDecorator(data: any, _ctx: FixContext) {
 			)
 			break
 		case 'range':
-			let min = data.config.bottom_offset
-			let max = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
+			const min = data.config.bottom_offset
+			const max = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
 			if (min === max) {
 				data.config = {
 					height: min,
@@ -286,26 +286,26 @@ function fixDecorator(data: any, _ctx: FixContext) {
 			}
 			break
 		case 'range_biased':
-			min = data.config.bottom_offset
-			max = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
+			const min2 = data.config.bottom_offset
+			const max2 = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
 			data.config = {
 				height: {
 					type: 'minecraft:biased_to_bottom',
-					min_inclusive: { absolute: min },
-					max_inclusive: { absolute: max },
-					cutoff: min,
+					min_inclusive: { absolute: min2 },
+					max_inclusive: { absolute: max2 },
+					cutoff: min2,
 				},
 			}
 			break
 		case 'range_very_biased':
-			min = data.config.bottom_offset
-			max = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
+			const min3 = data.config.bottom_offset
+			const max3 = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
 			data.config = {
 				height: {
 					type: 'minecraft:very_biased_to_bottom',
-					min_inclusive: { absolute: min },
-					max_inclusive: { absolute: max },
-					cutoff: min,
+					min_inclusive: { absolute: min3 },
+					max_inclusive: { absolute: max3 },
+					cutoff: min2,
 				},
 			}
 			break

@@ -2,8 +2,11 @@ import JSZip from 'jszip'
 import { Fixes } from './fixes'
 
 export const categories = [
+	'advancements',
 	'dimension',
 	'dimension_type',
+	'loot_tables',
+	'predicates',
 	'worldgen/biome',
 	'worldgen/configured_carver',
 	'worldgen/configured_feature',
@@ -33,6 +36,7 @@ export namespace Pack {
 			pack.data[category] = await loadCategory(zip, category)
 		}))
 		pack.meta = await loadJson(zip, 'pack.mcmeta')
+		console.warn(pack)
 		return pack
 	}
 	
@@ -82,7 +86,9 @@ export namespace Pack {
 	}
 
 	export async function upgrade(pack: Pack) {
-		if (pack.meta.pack.pack_format === 7) return { warnings: [] }
+		if (pack.meta.pack.pack_format === 7) return {
+			warnings: ['This pack already has pack_format 7 and cannot be upgraded.'],
+		}
 
 		const warnings: string[] = []
 		const ctx = {

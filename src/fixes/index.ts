@@ -4,6 +4,7 @@ import { DimensionType } from './DimensionType'
 import { Feature } from './Feature'
 import { NoiseSettings } from './NoiseSettings'
 import { PackFormat } from './PackFormat'
+import { Predicates } from './Predicates'
 import { StructureFeature } from './StructureFeature'
 
 export const Fixes: Fix[] = [
@@ -12,5 +13,6 @@ export const Fixes: Fix[] = [
 	StructureFeature,
 	Carver,
 	Feature,
+	Predicates,
 	PackFormat,
 ]

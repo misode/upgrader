@@ -36,7 +36,7 @@ export function PackCard({ pack, onError }: { pack: Pack, onError: (error: Error
 			{(!download && !error) && <div class="pack-status loading">
 				{Octicon.sync}
 			</div>}
-			{((download && alerts.length > 0) || error) && <div class={`pack-status alert${error ? ' error' : ''}`} onClick={toggleAlerts} data-hover={error ?? 'Not everything could be upgraded perfectly'}>
+			{((download && alerts.length > 0) || error) && <div class={`pack-status alert${error ? ' error' : ''}`} onClick={toggleAlerts} data-hover={error ?? 'There were issues upgrading'}>
 				{Octicon.alert}
 			</div>}
 			<span class="pack-name">{pack.name.replace(/\.zip$/, '')}</span>
