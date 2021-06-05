@@ -89,7 +89,7 @@ function fixFeature(data: any, ctx: FixContext) {
 			let min = typeof r === 'number' ? r : r.base
 			let max = typeof r === 'number' ? r : r.base + r.spread
 			if (max > 12) {
-				ctx.warn(`Feature "netherrack_replace_blobs" radius ${max} is greater than 12 and could not be perfectly upgraded. Consider increasing the count of this feature.`)
+				ctx.warn('Feature "netherrack_replace_blobs" no longer allows values above 12. Consider increasing the count of this feature.')
 				min = Math.min(12, min)
 				max = Math.min(12, max)
 			}
@@ -238,7 +238,25 @@ function fixDecorator(data: any, ctx: FixContext) {
 			delete data.config.probability
 			break
 		case 'count':
-			fixUniformInt(data.config, 'count')
+			const c = data.config.count
+			let min0 = typeof c === 'number' ? c : c.base
+			let max0 = typeof c === 'number' ? c : c.base + c.spread
+			if (min0 < 0) {
+				ctx.warn('Decorator "count" no longer allows negative values.')
+				min0 = Math.max(0, min0)
+				max0 = Math.max(0, max0)
+			}
+			if (min0 === max0) {
+				data.config.count = min0
+				break
+			}
+			data.config.count = {
+				type: 'minecraft:uniform',
+				value: {
+					min_inclusive: min0,
+					max_inclusive: max0,
+				},
+			}
 			break
 		case 'decorated':
 			fixDecorator(data.config.outer, ctx)
