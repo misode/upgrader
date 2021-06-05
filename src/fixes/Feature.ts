@@ -31,6 +31,16 @@ function fixFeature(data: any, ctx: FixContext) {
 		case 'ice_patch':
 			fixUniformInt(data.config, 'radius')
 			break
+		case 'emerald_ore':
+			data.type = 'minecraft:replace_single_block',
+			data.config = { targets: [ {
+				target: {
+					predicate_type: 'minecraft:blockstate_match',
+					block_state: data.config.target,
+				},
+				state: data.config.state,
+			} ] }
+			break
 		case 'flower':
 		case 'no_bonemeal_flower':
 		case 'random_patch':
@@ -343,6 +353,47 @@ function fixDecorator(data: any, ctx: FixContext) {
 					max_inclusive: { absolute: data.config.baseline + data.config.spread },
 				},
 			}
+			break
+		case 'emerald_ore':
+			data.type = 'minecraft:decorated'
+			data.config = combinedDecorators(
+				{ type: 'minecraft:count', config: { count: {
+					type: 'minecraft:uniform',
+					value: { min_inclusive: 3, max_inclusive: 8 },
+				} } },
+				{ type: 'minecraft:square', config: {} },
+				{ type: 'minecraft:range', config: { height: {
+					type: 'minecraft:uniform',
+					min_inclusive: { absolute: 4 },
+					max_inclusive: { absolute: 31 },
+				} } }
+			)
+			break
+		case 'end_island':
+			data.type = 'minecraft:decorated'
+			data.config = combinedDecorators(
+				{ type: 'minecraft:chance', config: { chance: 14 } },
+				{ type: 'minecraft:count_extra', config: {
+					count: 1,
+					extra_count: 1,
+					extra_chance: 0.25,
+				} },
+				{ type: 'minecraft:square', config: {} },
+				{ type: 'minecraft:range', config: { height: {
+					type: 'minecraft:uniform',
+					min_inclusive: { absolute: 55 },
+					max_inclusive: { absolute: 70 },
+				} } }
+			)
+			break
+		case 'magma':
+			ctx.warn('Removed decorator "magma" previously used the sea level. Assumed sea level is 32 and replaced with a range decorator between 27 and 36.')
+			data.type = 'minecraft:range'
+			data.config = { height: {
+				type: 'minecraft:uniform',
+				min_inclusive: { absolute: 27 },
+				max_inclusive: { absolute: 36 },
+			} }
 			break
 	}
 }
