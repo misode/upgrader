@@ -8,6 +8,8 @@ export const categories = [
 	'dimension_type',
 	'loot_tables',
 	'predicates',
+	'tags/blocks',
+	'tags/items',
 	'worldgen/biome',
 	'worldgen/configured_carver',
 	'worldgen/configured_feature',
