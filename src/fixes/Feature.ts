@@ -48,8 +48,9 @@ function fixFeature(data: any, ctx: FixContext) {
 			}
 			break
 		case 'netherrack_replace_blobs':
-			let min = data.config.radius.base
-			let max = data.config.radius.base + data.config.radius.spread
+			const r = data.config.radius
+			let min = typeof r === 'number' ? r : r.base
+			let max = typeof r === 'number' ? r : r.base + r.spread
 			if (max > 12) {
 				ctx.warn(`Feature "netherrack_replace_blobs" radius ${max} is greater than 12 and could not be perfectly upgraded. Consider increasing the count of this feature.`)
 				min = Math.min(12, min)
@@ -69,6 +70,7 @@ function fixFeature(data: any, ctx: FixContext) {
 			break
 		case 'no_surface_ore':
 			fixOre(data)
+			data.type = 'minecraft:ore'
 			data.config.discard_chance_on_air_exposure = 1
 			break
 		case 'ore':
@@ -110,6 +112,9 @@ function fixFeature(data: any, ctx: FixContext) {
 				type: 'minecraft:simple_state_provider',
 				state: {
 					Name: getSapling(data.config.foliage_provider),
+					Properties: {
+						stage: '0',
+					},
 				},
 			}
 			data.type = 'minecraft:decorated'
@@ -160,7 +165,7 @@ function fixOre(data: any) {
 
 function getSapling(foliage: any) {
 	if (foliage.type.replace(/^minecraft:/, '') === 'simple_state_provider') {
-		const match = foliage.state.Name.match(/^(?:minecraft:)?()_leaves/)
+		const match = foliage.state.Name.match(/^(?:minecraft:)?([a-z_]+)_leaves/)
 		if (match) {
 			return `minecraft:${match[1]}_sapling`
 		}
@@ -168,7 +173,7 @@ function getSapling(foliage: any) {
 	return 'minecraft:oak_sapling'
 }
 
-function fixDecorator(data: any, _ctx: FixContext) {
+function fixDecorator(data: any, ctx: FixContext) {
 	if (typeof data !== 'object') return
 
 	const type = data.type.replace(/^minecraft:/, '')
@@ -194,6 +199,13 @@ function fixDecorator(data: any, _ctx: FixContext) {
 				]
 			)
 			delete data.config.probability
+			break
+		case 'count':
+			fixUniformInt(data.config, 'count')
+			break
+		case 'decorated':
+			fixDecorator(data.config.outer, ctx)
+			fixDecorator(data.config.inner, ctx)
 			break
 		case 'heightmap_world_surface':
 			data.type = 'minecraft:heightmap'
@@ -284,7 +296,7 @@ function fixDecorator(data: any, _ctx: FixContext) {
 			const max = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
 			if (min === max) {
 				data.config = {
-					height: min,
+					height: { absolute: min },
 				}
 				break
 			}
@@ -299,6 +311,7 @@ function fixDecorator(data: any, _ctx: FixContext) {
 		case 'range_biased':
 			const min2 = data.config.bottom_offset
 			const max2 = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
+			data.type = 'minecraft:range'
 			data.config = {
 				height: {
 					type: 'minecraft:biased_to_bottom',
@@ -311,6 +324,7 @@ function fixDecorator(data: any, _ctx: FixContext) {
 		case 'range_very_biased':
 			const min3 = data.config.bottom_offset
 			const max3 = data.config.bottom_offset + data.config.maximum - data.config.top_offset - 1
+			data.type = 'minecraft:range'
 			data.config = {
 				height: {
 					type: 'minecraft:very_biased_to_bottom',

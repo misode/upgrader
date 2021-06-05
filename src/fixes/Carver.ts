@@ -46,28 +46,26 @@ function fixCarver(data: any) {
 			inner: 8,
 		}
 		data.config.yScale = 3
-		if (type === 'canyon') {
-			data.config.vertical_rotation = {
+		data.config.vertical_rotation = {
+			type: 'minecraft:uniform',
+			value: { min_inclusive: -0.125, max_exclusive: 0.125 },
+		}
+		data.config.shape = {
+			distance_factor: {
 				type: 'minecraft:uniform',
-				value: { min_inclusive: -0.125, max_exclusive: 0.125 },
-			}
-			data.config.shape = {
-				distance_factor: {
-					type: 'minecraft:uniform',
-					value: { min_inclusive: 0.75, max_exclusive: 1 },
-				},
-				thickness: {
-					type: 'minecraft:trapezoid',
-					value: { min: 0, max: 6, plateau: 2 },
-				},
-				width_smoothness: 3,
-				horizontal_radius_factor: {
-					type: 'minecraft:uniform',
-					value: { min_inclusive: 0.75, max_exclusive: 1 },
-				},
-				vertical_radius_default_factor: 1,
-				vertical_radius_center_factor: 0,
-			}
+				value: { min_inclusive: 0.75, max_exclusive: 1 },
+			},
+			thickness: {
+				type: 'minecraft:trapezoid',
+				value: { min: 0, max: 6, plateau: 2 },
+			},
+			width_smoothness: 3,
+			horizontal_radius_factor: {
+				type: 'minecraft:uniform',
+				value: { min_inclusive: 0.75, max_exclusive: 1 },
+			},
+			vertical_radius_default_factor: 1,
+			vertical_radius_center_factor: 0,
 		}
 	}
 }
