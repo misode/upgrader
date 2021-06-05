@@ -74,6 +74,14 @@ function fixFeature(data: any, ctx: FixContext) {
 		case 'ore':
 			fixOre(data)
 			break
+		case 'random_boolean_selector':
+			fixFeature(data.config.feature_false, ctx)
+			fixFeature(data.config.feature_true, ctx)
+			break
+		case 'random_selector':
+			data.config.features.forEach((e: any) => fixFeature(e.feature, ctx))
+			fixFeature(data.config.default, ctx)
+			break
 		case 'sea_pickle':
 			fixUniformInt(data.config, 'count')
 			break
@@ -82,6 +90,9 @@ function fixFeature(data: any, ctx: FixContext) {
 				type: 'minecraft:simple_state_provider',
 				state: data.config.to_place,
 			}
+			break
+		case 'simple_random_selector':
+			data.config.features.forEach((feature: any) => fixFeature(feature, ctx))
 			break
 		case 'tree':
 			['radius', 'offset', 'crown_height', 'height', 'trunk_height']
