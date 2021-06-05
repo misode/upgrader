@@ -57,6 +57,33 @@ function fixFeature(data: any, ctx: FixContext) {
 				delete placer.extra_size
 			}
 			break
+		case 'fossil':
+			data.config = {
+				max_empty_corners_allowed: 4,
+				fossil_processors: 'minecraft:fossil_rot',
+				overlay_processors: 'minecraft:fossil_coal',
+				fossil_structures: [
+					'minecraft:fossil/spine_1',
+					'minecraft:fossil/spine_2',
+					'minecraft:fossil/spine_3',
+					'minecraft:fossil/spine_4',
+					'minecraft:fossil/skull_1',
+					'minecraft:fossil/skull_2',
+					'minecraft:fossil/skull_3',
+					'minecraft:fossil/skull_4',
+				],
+				overlay_structures: [
+					'minecraft:fossil/spine_1_coal',
+					'minecraft:fossil/spine_2_coal',
+					'minecraft:fossil/spine_3_coal',
+					'minecraft:fossil/spine_4_coal',
+					'minecraft:fossil/skull_1_coal',
+					'minecraft:fossil/skull_2_coal',
+					'minecraft:fossil/skull_3_coal',
+					'minecraft:fossil/skull_4_coal',
+				],
+			}
+			break
 		case 'netherrack_replace_blobs':
 			const r = data.config.radius
 			let min = typeof r === 'number' ? r : r.base
