@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks'
 import { Octicon } from './components/Octicon'
 import { PackCard } from './components/PackCard'
+import type { FixConfig } from './Fix'
 import { Pack } from './Pack'
 
 export type AppError = {
@@ -11,6 +12,12 @@ export type AppError = {
 export function App() {
 	const [packs, setPacks] = useState<Pack[]>([])
 	const [errors, setErrors] = useState<AppError[]>([])
+	const [config, _setConfig] = useState<FixConfig>({
+		'fix.replaceitem': true,
+		'fix.ids': true,
+		'fix.worldgen': true,
+		'fix.mcmeta': true,
+	})
 
 	const onDrop = async (e: DragEvent) => {
 		e.preventDefault()
@@ -50,7 +57,7 @@ export function App() {
 			</div>
 		</> : <>
 			<div class="packs">
-				{packs.map(pack => <PackCard pack={pack} onError={onUpgradeError} />)}
+				{packs.map(pack => <PackCard pack={pack} config={config} onError={onUpgradeError} />)}
 			</div>
 			<div class="footer">
 				<p>Developed by Misode</p>

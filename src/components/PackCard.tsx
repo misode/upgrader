@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'preact/hooks'
+import type { FixConfig } from '../Fix'
 import { Pack } from '../Pack'
 import { Octicon } from './Octicon'
 
-export function PackCard({ pack, onError }: { pack: Pack, onError: (error: Error) => unknown }) {
+export function PackCard({ pack, config, onError }: { pack: Pack, config: FixConfig, onError: (error: Error) => unknown }) {
 	const [download, setDownload] = useState<string | null>(null)
 	const [alerts, setAlerts] = useState<string[]>([])
 	const [error, setError] = useState<string | null>(null)
@@ -12,7 +13,7 @@ export function PackCard({ pack, onError }: { pack: Pack, onError: (error: Error
 	useEffect(() => {
 		(async () => {
 			try {
-				const { warnings } = await Pack.upgrade(pack)
+				const { warnings } = await Pack.upgrade(pack, config)
 				if (warnings) setAlerts(warnings)
 
 				const download = await Pack.toZip(pack)

@@ -19,6 +19,7 @@ export namespace Fix {
 		return (pack, ctx) => {
 			for (const { name, data } of pack.data[category]) {
 				const fileCtx = {
+					...ctx,
 					warn: (message: string) => ctx.warn(`${name} ${message}`),
 				}
 				try {
@@ -33,6 +34,9 @@ export namespace Fix {
 	}
 }
 
+export type FixConfig = Record<string, boolean>
+
 export interface FixContext {
 	warn: (message: string) => unknown
+	config: (config: string) => boolean
 }

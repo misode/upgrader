@@ -1,5 +1,6 @@
 import detectIndent from 'detect-indent'
 import JSZip from 'jszip'
+import type { FixConfig } from './Fix'
 import { Fixes } from './fixes'
 
 export const categories = [
@@ -124,7 +125,7 @@ export namespace Pack {
 		zip.file(path, data)
 	}
 
-	export async function upgrade(pack: Pack) {
+	export async function upgrade(pack: Pack, config: FixConfig) {
 		if (pack.meta.data.pack.pack_format === 7) {
 			return {
 				warnings: ['This pack already has pack_format 7 and cannot be upgraded.'],
@@ -134,6 +135,7 @@ export namespace Pack {
 		const warnings: string[] = []
 		const ctx = {
 			warn: (message: string) => warnings.push(message),
+			config: (key: string) => config[key],
 		}
 		for (const fix of Fixes) {
 			fix(pack, ctx)
