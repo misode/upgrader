@@ -17,14 +17,14 @@ export namespace Fix {
 	 */
 	export function onFile(category: typeof categories[number] | 'functions', fix: (data: any, ctx: FixContext) => unknown): Fix {
 		return (pack, ctx) => {
-			for (const [id, data] of Object.entries(pack.data[category])) {
+			for (const { name, data } of pack.data[category]) {
 				const fileCtx = {
-					warn: (message: string) => ctx.warn(`${id} ${message}`),
+					warn: (message: string) => ctx.warn(`${name} ${message}`),
 				}
 				try {
 					fix(data, fileCtx)
 				} catch (e) {
-					const error = new Error(`Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${id}: ${e.message}`)
+					const error = new Error(`Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${name}: ${e.message}`)
 					error.stack = e.stack
 					throw error
 				}

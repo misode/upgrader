@@ -12,6 +12,7 @@
 		"@types/node": "^15.6.1",
 		"@typescript-eslint/eslint-plugin": "^4.25.0",
 		"@typescript-eslint/parser": "^4.25.0",
+		"detect-indent": "^6.1.0",
 		"eslint": "^7.27.0",
 		"jszip": "^3.6.0",
 		"preact": "^10.5.13",
