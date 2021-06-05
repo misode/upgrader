@@ -35,27 +35,23 @@ export namespace Pack {
 		await Promise.all(categories.map(async category => {
 			pack.data[category] = await loadCategory(zip, category)
 		}))
+		pack.data.functions = await loadFunctions(zip)
 		pack.meta = await loadJson(zip, 'pack.mcmeta')
-		console.warn(pack)
 		return pack
 	}
 	
 	async function loadCategory(zip: JSZip, category: string) {
 		const matcher = new RegExp(`^data\/([^\/]+)\/${category}\/(.*)\.json$`)
-		return Object.fromEntries(
-			await Promise.all(Object.keys(zip.files)
+		return Object.fromEntries(await Promise.all(
+			Object.keys(zip.files)
 				.map(f => f.match(matcher)).filter(m => m)
-				.map<Promise<[string, any]>>(async m => [`${m![1]}:${m![2]}`, await loadJson(zip, m![0])]))
-		)
+				.map<Promise<[string, any]>>(async m => [`${m![1]}:${m![2]}`, await loadJson(zip, m![0])])
+		))
 	}
 
 	async function loadJson(zip: JSZip, path: string) {
-		const file = zip.files[path]
-		if (!file) {
-			throw new Error(`Cannot find "${path}".`)
-		}
+		let text = await loadText(zip, path)
 		try {
-			let text = await file.async('text')
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
 			return JSON.parse(text)
 		} catch (e) {
@@ -63,10 +59,28 @@ export namespace Pack {
 		}
 	}
 
+	async function loadFunctions(zip: JSZip) {
+		const matcher = /^data\/([^\/]+)\/functions\/(.*)\.mcfunction$/
+		return Object.fromEntries(await Promise.all(
+			Object.keys(zip.files)
+				.map(f => f.match(matcher)).filter(m => m)
+				.map(async m => [`${m![1]}:${m![2]}`, (await loadText(zip, m![0])).split('\n')])
+		))
+	}
+
+	async function loadText(zip: JSZip, path: string) {
+		const file = zip.files[path]
+		if (!file) {
+			throw new Error(`Cannot find "${path}".`)
+		}
+		return await file.async('text')
+	}
+
 	export async function toZip(pack: Pack) {
 		categories.forEach(category => {
 			writeCategory(pack.zip, category, pack.data[category])
 		})
+		writeFunctions(pack.zip, pack.data.functions)
 		writeJson(pack.zip, 'pack.mcmeta', pack.meta)
 		const blob = await pack.zip.generateAsync({ type: 'blob'})
 		return URL.createObjectURL(blob)
@@ -80,14 +94,28 @@ export namespace Pack {
 			})
 	}
 
+	function writeFunctions(zip: JSZip, functions: Record<string, any>) {
+		Object.entries(functions)
+			.forEach(([k, v]) => {
+				const [namespace, path] = k.split(':')
+				writeText(zip, `data/${namespace}/functions/${path}.mcfunction`, v.join('\n'))
+			})
+	}
+
 	function writeJson(zip: JSZip, path: string, data: any) {
 		const text = JSON.stringify(data, null, 2) + '\n'
-		zip.file(path, text)
+		writeText(zip, path, text)
+	}
+
+	function writeText(zip: JSZip, path: string, data: any) {
+		zip.file(path, data)
 	}
 
 	export async function upgrade(pack: Pack) {
-		if (pack.meta.pack.pack_format === 7) return {
-			warnings: ['This pack already has pack_format 7 and cannot be upgraded.'],
+		if (pack.meta.pack.pack_format === 7) {
+			return {
+				warnings: ['This pack already has pack_format 7 and cannot be upgraded.'],
+			}
 		}
 
 		const warnings: string[] = []

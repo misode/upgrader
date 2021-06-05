@@ -15,7 +15,7 @@ export namespace Fix {
 	/**
 	 * A simple fix that runs on one file category
 	 */
-	export function onFile(category: typeof categories[number], fix: (data: any, ctx: FixContext) => unknown): Fix {
+	export function onFile(category: typeof categories[number] | 'functions', fix: (data: any, ctx: FixContext) => unknown): Fix {
 		return (pack, ctx) => {
 			for (const [id, data] of Object.entries(pack.data[category])) {
 				const fileCtx = {
