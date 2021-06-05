@@ -3,10 +3,10 @@ import { Fix } from '../Fix'
 /**
  * Renames grass_path to dirt_path
  */
-export const Ids = Fix.all([
+export const Ids = Fix.all(
 	Fix.onFile('tags/blocks', fixTag),
 	Fix.onFile('tags/items', fixTag),
-])
+)
 
 function fixTag(data: any) {
 	data.values?.forEach((_: any, i: number) => fixIds(data.values, i))

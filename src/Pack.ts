@@ -135,11 +135,9 @@ export namespace Pack {
 		const warnings: string[] = []
 		const ctx = {
 			warn: (message: string) => warnings.push(message),
-			config: (key: string) => config[key],
+			config: (key: keyof FixConfig) => config[key],
 		}
-		for (const fix of Fixes) {
-			fix(pack, ctx)
-		}
+		Fixes(pack, ctx)
 		return { warnings }
 	}
 }

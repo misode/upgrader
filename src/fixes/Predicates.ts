@@ -3,7 +3,7 @@ import { Fix } from '../Fix'
 /**
  * Fixes item and block predicates all over predicates, advancements and loot tables
  */
-export const Predicates = Fix.all([
+export const Predicates = Fix.all(
 	Fix.onFile('predicates', (data) => {
 		if (Array.isArray(data)) {
 			data.forEach(fixCondition)
@@ -17,7 +17,7 @@ export const Predicates = Fix.all([
 	Fix.onFile('loot_tables', (data) => {
 		data.pools?.forEach(fixPool)
 	}),
-])
+)
 
 function fixCriterion(data: any) {
 	if (typeof data.conditions !== 'object') return

@@ -3,14 +3,14 @@ import { Fix } from '../Fix'
 /**
  * Adds the "min_y" and "height" properties to dimension types
  */
-export const DimensionType = Fix.all([
+export const DimensionType = Fix.all(
 	Fix.onFile('dimension_type', fixDimensionType),
 	Fix.onFile('dimension', (data) => {
 		if (typeof data.type === 'object') {
 			fixDimensionType(data.type)
 		}
 	}),
-])
+)
 
 function fixDimensionType(data: any) {
 	data.min_y = 0

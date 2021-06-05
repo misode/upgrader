@@ -6,7 +6,7 @@ export namespace Fix {
 	/**
 	 * Runs each fix after each other
 	 */
-	export function all(fixes: Fix[]): Fix {
+	export function all(...fixes: Fix[]): Fix {
 		return (pack, ctx) => {
 			fixes.forEach(fix => fix(pack, ctx))
 		}
@@ -32,11 +32,25 @@ export namespace Fix {
 			}
 		}
 	}
+
+	export function when(key: keyof FixConfig, ...fixes: Fix[]): Fix {
+		return (pack, ctx) => {
+			if (ctx.config(key)) {
+				fixes.forEach(fix => fix(pack, ctx))
+			}
+		}
+	}
 }
 
-export type FixConfig = Record<string, boolean>
+export type FixConfig = {
+	replaceitem: boolean,
+	ids: boolean,
+	itemBlockPredicates: boolean,
+	worldgen: boolean,
+	packFormat: boolean,
+}
 
 export interface FixContext {
 	warn: (message: string) => unknown
-	config: (config: string) => boolean
+	config: (key: keyof FixConfig) => boolean
 }

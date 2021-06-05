@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks'
+import { Config } from './components/Config'
 import { Octicon } from './components/Octicon'
 import { PackCard } from './components/PackCard'
 import type { FixConfig } from './Fix'
@@ -12,11 +13,12 @@ export type AppError = {
 export function App() {
 	const [packs, setPacks] = useState<Pack[]>([])
 	const [errors, setErrors] = useState<AppError[]>([])
-	const [config, _setConfig] = useState<FixConfig>({
-		'fix.replaceitem': true,
-		'fix.ids': true,
-		'fix.worldgen': true,
-		'fix.mcmeta': true,
+	const [config, setConfig] = useState<FixConfig>({
+		replaceitem: true,
+		ids: true,
+		itemBlockPredicates: true,
+		worldgen: true,
+		packFormat: true,
 	})
 
 	const onDrop = async (e: DragEvent) => {
@@ -54,6 +56,13 @@ export function App() {
 			<div class="drop">
 				<h1>Drop data pack here</h1>
 				<p>Converts from 1.16.5 to 1.17</p>
+				<div class="configs">
+					<Config name="Upgrade /replaceitem" value={config.replaceitem} onChange={v => setConfig({ ...config, replaceitem: v })} />
+					<Config name="Upgrade grass_path in tags" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
+					<Config name="Upgrade item and block predicates" value={config.itemBlockPredicates} onChange={v => setConfig({ ...config, itemBlockPredicates: v })} />
+					<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
+					<Config name="Upgrade pack_format" value={config.packFormat} onChange={v => setConfig({ ...config, packFormat: v })} />
+				</div>
 			</div>
 		</> : <>
 			<div class="packs">

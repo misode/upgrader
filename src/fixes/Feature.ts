@@ -1,14 +1,14 @@
 import type { FixContext } from '../Fix'
 import { Fix } from '../Fix'
 
-export const Feature = Fix.all([
+export const Feature = Fix.all(
 	Fix.onFile('worldgen/configured_feature', fixFeature),
 	Fix.onFile('worldgen/biome', (data) => {
 		if (Array.isArray(data.starts)) {
 			data.starts.forEach(fixFeature)
 		}
 	}),
-])
+)
 
 function fixFeature(data: any, ctx: FixContext) {
 	if (typeof data !== 'object') return

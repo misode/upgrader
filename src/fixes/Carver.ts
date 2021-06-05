@@ -3,7 +3,7 @@ import { Fix } from '../Fix'
 /**
  * Adds the new config properties to configured carvers
  */
-export const Carver = Fix.all([
+export const Carver = Fix.all(
 	Fix.onFile('worldgen/configured_carver', fixCarver),
 	Fix.onFile('worldgen/biome', (data) => {
 		if (typeof data.carvers === 'object') {
@@ -11,7 +11,7 @@ export const Carver = Fix.all([
 			data.carvers.liquid?.forEach(fixCarver)
 		}
 	}),
-])
+)
 
 function fixCarver(data: any) {
 	if (typeof data !== 'object') return

@@ -1,4 +1,4 @@
-import type { Fix } from '../Fix'
+import { Fix } from '../Fix'
 import { Carver } from './Carver'
 import { DimensionType } from './DimensionType'
 import { Feature } from './Feature'
@@ -9,14 +9,16 @@ import { PackFormat } from './PackFormat'
 import { Predicates } from './Predicates'
 import { StructureFeature } from './StructureFeature'
 
-export const Fixes: Fix[] = [
-	Ids,
-	Predicates,
-	Function,
-	DimensionType,
-	NoiseSettings,
-	StructureFeature,
-	Carver,
-	Feature,
-	PackFormat,
-]
+export const Fixes = Fix.all(
+	Fix.when('ids', Ids),
+	Fix.when('itemBlockPredicates', Predicates),
+	Fix.when('replaceitem', Function),
+	Fix.when('worldgen',
+		DimensionType,
+		NoiseSettings,
+		StructureFeature,
+		Carver,
+		Feature
+	),
+	Fix.when('packFormat', PackFormat),
+)

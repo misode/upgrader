@@ -48,7 +48,26 @@ main {
 
 .drop p {
 	color: #bbb;
-	margin: 0.2em 0;
+	margin: 0.6em 0;
+}
+
+.configs {
+	margin: 0.6em 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.config {
+	color: #bbb;
+	user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+}
+
+.config input {
+	margin-right: 10px;
 }
 
 .main-errors {
