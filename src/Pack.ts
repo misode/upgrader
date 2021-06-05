@@ -27,7 +27,7 @@ type PackFile = {
 export type Pack = {
 	name: string,
 	zip: JSZip,
-	meta: any,
+	meta: PackFile,
 	data: {
 		[category: string]: PackFile[],
 	},
@@ -43,7 +43,8 @@ export namespace Pack {
 			pack.data[category] = await loadCategory(zip, category)
 		}))
 		pack.data.functions = await loadFunctions(zip)
-		pack.meta = await (await loadJson(zip, 'pack.mcmeta')).data
+		pack.meta = { name: 'pack', ...await loadJson(zip, 'pack.mcmeta') }
+		console.log(pack)
 		return pack
 	}
 
@@ -93,7 +94,7 @@ export namespace Pack {
 			writeCategory(pack.zip, category, pack.data[category])
 		})
 		writeFunctions(pack.zip, pack.data.functions)
-		writeJson(pack.zip, 'pack.mcmeta', pack.meta)
+		writeJson(pack.zip, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
 		const blob = await pack.zip.generateAsync({ type: 'blob'})
 		return URL.createObjectURL(blob)
 	}
@@ -122,7 +123,7 @@ export namespace Pack {
 	}
 
 	export async function upgrade(pack: Pack) {
-		if (pack.meta.pack.pack_format === 7) {
+		if (pack.meta.data.pack.pack_format === 7) {
 			return {
 				warnings: ['This pack already has pack_format 7 and cannot be upgraded.'],
 			}

@@ -305,7 +305,7 @@ function fixDecorator(data: any, _ctx: FixContext) {
 					type: 'minecraft:very_biased_to_bottom',
 					min_inclusive: { absolute: min3 },
 					max_inclusive: { absolute: max3 },
-					cutoff: min2,
+					cutoff: min3,
 				},
 			}
 			break
