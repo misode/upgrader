@@ -8,7 +8,17 @@ export function PackCard({ pack, config, onError }: { pack: Pack, config: FixCon
 	const [alerts, setAlerts] = useState<string[]>([])
 	const [error, setError] = useState<string | null>(null)
 	const [alertsHidden, setAlertsHidden] = useState(false)
+
 	const downloadName = pack.name.replace(/\.zip$/, '_1_17.zip')
+	const problems: Record<string, string[]> = {}
+	alerts.forEach(a => {
+		if (a.match(/^[a-z0-9_-]+:[a-z0-9/_-]+ /)) {
+			const [file, ...name] = a.split(' ');
+			(problems[name.join(' ')] ??= []).push(file)
+		} else {
+			problems[a] = []
+		}
+	})
 
 	useEffect(() => {
 		(async () => {
@@ -43,8 +53,12 @@ export function PackCard({ pack, config, onError }: { pack: Pack, config: FixCon
 			<span class="pack-name">{pack.name.replace(/\.zip$/, '')}</span>
 		</div>
 		{(download && alerts && !alertsHidden) && <div class="pack-body">
-			{alerts.map(alert => <div class="pack-alert">
-				{alert}
+			{Object.entries(problems).map(([name, files]) => <div class="pack-alert">
+				<div class="alert-name">{name}</div>
+				{files.length > 0 && <>
+					<p>Affected files:</p>
+					<div class="alert-files">{files.map(file => <p>{file}</p>)}</div>
+				</>}
 			</div>)}
 		</div>}
 	</div>

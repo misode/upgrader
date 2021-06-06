@@ -170,7 +170,7 @@ main {
 .pack-status:hover::after {
 	content: attr(data-hover);
 	position: absolute;
-	top: calc(100% + 4px);
+	bottom: 100%;
 	left: 0;
 	white-space: nowrap;
 	background-color: var(--dark-2);
@@ -226,5 +226,24 @@ main {
 
 .pack-alert {
 	margin: 10px 0 10px 20px;
+}
+
+.alert-name {
 	color: var(--warning-2);
+	margin: 5px 0;
+}
+
+.pack-alert > *:not(.alert-name) {
+	margin-left: 10px;
+}
+
+.alert-files {
+	color: #ccc;
+	font-size: 14px;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.alert-files p {
+	margin-right: 20px;
 }
