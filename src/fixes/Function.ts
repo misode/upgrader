@@ -7,7 +7,7 @@ const replaceitemRegex = /replaceitem (entity @.[^[]* .+ |entity @.\[.*\] .+ |bl
  */
 export const Function = Fix.onFile('functions', (data: string[]) => {
 	data.forEach((line, i) => {
-		if (line.startsWith('replaceitem')) {
+		if (line.startsWith('replaceitem ') || line.startsWith('execute ')) {
 			data[i] = line.replace(replaceitemRegex, 'item replace $1with ')
 		}
 	})
