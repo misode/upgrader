@@ -52,27 +52,26 @@ export function App() {
 	}
 
 	return <main onDrop={onDrop} onDragOver={e => e.preventDefault()}>
-		{packs.length === 0 ? <>
-			<div class="drop">
-				<h1>Drop data pack here</h1>
-				<p>Converts from 1.16.5 to 1.17</p>
-				<div class="configs">
-					<Config name="Upgrade /replaceitem" value={config.replaceitem} onChange={v => setConfig({ ...config, replaceitem: v })} />
-					<Config name="Upgrade grass_path in tags" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
-					<Config name="Upgrade item and block predicates" value={config.itemBlockPredicates} onChange={v => setConfig({ ...config, itemBlockPredicates: v })} />
-					<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
-					<Config name="Upgrade pack_format" value={config.packFormat} onChange={v => setConfig({ ...config, packFormat: v })} />
-				</div>
-			</div>
-		</> : <>
+		{packs.length > 0 && <>
 			<div class="packs">
 				{packs.map(pack => <PackCard pack={pack} config={config} onError={onUpgradeError} />)}
 			</div>
-			<div class="footer">
-				<p>Developed by Misode</p>
-				<p>Source code on <a href="https://github.com/misode/upgrader" target="_blank">GitHub</a></p>
-			</div>
 		</>}
+		<div class="drop">
+			<h1>Drop data pack here</h1>
+			<p>Converts from 1.16.5 to 1.17</p>
+		</div>
+		<div class="configs">
+			<Config name="Upgrade /replaceitem" value={config.replaceitem} onChange={v => setConfig({ ...config, replaceitem: v })} />
+			<Config name="Upgrade grass_path in tags" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
+			<Config name="Upgrade item and block predicates" value={config.itemBlockPredicates} onChange={v => setConfig({ ...config, itemBlockPredicates: v })} />
+			<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
+			<Config name="Upgrade pack_format" value={config.packFormat} onChange={v => setConfig({ ...config, packFormat: v })} />
+		</div>
+		<div class="footer">
+			<p>Developed by Misode</p>
+			<p>Source code on <a href="https://github.com/misode/upgrader" target="_blank">GitHub</a></p>
+		</div>
 		<div class="main-errors">
 			{errors.map(e => {
 				const title = `${e.error.name}: ${e.error.message}`
