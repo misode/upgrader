@@ -32,7 +32,12 @@ export function App() {
 				promises.push(Pack.fromZip(file))
 			}
 		}
-		if (promises.length > 0) {
+		if (promises.length === 0) {
+			setErrors([...errors, {
+				process: 'loading',
+				error: new Error('The dropped files contain no zip files. Please zip the data pack first.'),
+			}])
+		} else {
 			const newPacks = await Promise.all(promises.map(async promise => {
 				try {
 					return await promise
