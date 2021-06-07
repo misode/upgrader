@@ -4,6 +4,7 @@ import { Pack } from '../Pack'
 import { Octicon } from './Octicon'
 
 export function PackCard({ pack, config, onError }: { pack: Pack, config: FixConfig, onError: (error: Error) => unknown }) {
+	const [status, setStatus] = useState('Loading...')
 	const [download, setDownload] = useState<string | null>(null)
 	const [alerts, setAlerts] = useState<string[]>([])
 	const [error, setError] = useState<string | null>(null)
@@ -23,9 +24,12 @@ export function PackCard({ pack, config, onError }: { pack: Pack, config: FixCon
 	useEffect(() => {
 		(async () => {
 			try {
+				setStatus('Upgrading...')
 				const { warnings } = await Pack.upgrade(pack, config)
+				await new Promise(res => setTimeout(res, 500))
 				if (warnings) setAlerts(warnings)
 
+				setStatus('Zipping...')
 				const download = await Pack.toZip(pack)
 				setDownload(download)
 			} catch (e) {
@@ -44,15 +48,15 @@ export function PackCard({ pack, config, onError }: { pack: Pack, config: FixCon
 			{download && <a class="pack-status download" href={download} download={downloadName} data-hover="Download data pack for 1.17">
 				{Octicon.download}
 			</a>}
-			{(!download && !error) && <div class="pack-status loading">
+			{(!download && !error) && <div class="pack-status loading" data-hover={status}>
 				{Octicon.sync}
 			</div>}
-			{((download && alerts.length > 0) || error) && <div class={`pack-status alert${error ? ' error' : ''}`} onClick={toggleAlerts} data-hover={error ?? 'There were issues upgrading'}>
+			{(alerts.length > 0 || error) && <div class={`pack-status alert${error ? ' error' : ''}`} onClick={toggleAlerts} data-hover={error ?? 'There were issues upgrading'}>
 				{Octicon.alert}
 			</div>}
 			<span class="pack-name">{pack.name.replace(/\.zip$/, '')}</span>
 		</div>
-		{(download && alerts && !alertsHidden) && <div class="pack-body">
+		{(alerts.length > 0 && !alertsHidden) && <div class="pack-body">
 			{Object.entries(problems).map(([name, files]) => <div class="pack-alert">
 				<div class="alert-name">{name}</div>
 				{files.length > 0 && <>
