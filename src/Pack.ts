@@ -66,6 +66,7 @@ export namespace Pack {
 		let text = await loadText(zip, path)
 		const indent = detectIndent(text).indent
 		try {
+			text = text.replaceAll('\u200B', '').replaceAll('\u200C', '').replaceAll('\u200D', '').replaceAll('\uFEFF', '')
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
 			return { data: JSON.parse(text), indent }
 		} catch (e) {
