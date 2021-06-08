@@ -238,11 +238,12 @@ function fixDecorator(data: any, ctx: FixContext) {
 			delete data.config.probability
 			break
 		case 'count':
+		case 'count_multilayer':
 			const c = data.config.count
 			let min0 = typeof c === 'number' ? c : c.base
 			let max0 = typeof c === 'number' ? c : c.base + c.spread
 			if (min0 < 0) {
-				ctx.warn('Decorator "count" no longer allows negative values.')
+				ctx.warn(`Decorator "${type}" no longer allows negative values.`)
 				min0 = Math.max(0, min0)
 				max0 = Math.max(0, max0)
 			}
