@@ -1,6 +1,6 @@
 import { Fix } from '../Fix'
 
-const replaceitemRegex = /replaceitem ((?:entity @[parse][^[]*|entity @.\[.*\]|block (.+ ){3}) [a-z0-9.]+) /
+const replaceitemRegex = /replaceitem ((?:entity @[parse](\[.*\]*)?|block( [^ ]+){3}) [a-z0-9.]+) /
 
 /**
  * Upgrades /replaceitem to /item replace ... with
