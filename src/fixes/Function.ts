@@ -1,6 +1,6 @@
 import { Fix } from '../Fix'
 
-const replaceitemRegex = /replaceitem (entity @.[^[]* .+ |entity @.\[.*\] .+ |block (.+ ){4})/
+const replaceitemRegex = /replaceitem ((?:entity @[parse][^[]*|entity @.\[.*\]|block (.+ ){3}) [a-z0-9.]+) /
 
 /**
  * Upgrades /replaceitem to /item replace ... with
@@ -8,7 +8,7 @@ const replaceitemRegex = /replaceitem (entity @.[^[]* .+ |entity @.\[.*\] .+ |bl
 export const Function = Fix.onFile('functions', (data: string[]) => {
 	data.forEach((line, i) => {
 		if (line.startsWith('replaceitem ') || line.startsWith('execute ')) {
-			data[i] = line.replace(replaceitemRegex, 'item replace $1with ')
+			data[i] = line.replace(replaceitemRegex, 'item replace $1 with ')
 		}
 	})
 })
