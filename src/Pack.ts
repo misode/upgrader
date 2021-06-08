@@ -98,7 +98,7 @@ export namespace Pack {
 		})
 		writeFunctions(pack.zip, pack.data.functions)
 		writeJson(pack.zip, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
-		const blob = await pack.zip.generateAsync({ type: 'blob'})
+		const blob = await pack.zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
 		return URL.createObjectURL(blob)
 	}
 
