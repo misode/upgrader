@@ -21,12 +21,10 @@ export const categories = [
 	'worldgen/template_pool',
 ] as const
 
-type PackFile<Data = any> = {
+type PackFile = {
 	name: string,
-	data: Data,
+	data: any,
 	indent?: string,
-	unixPermissions?: string | number,
-	dosPermissions?: number,
 }
 
 export type Pack = {
@@ -34,7 +32,6 @@ export type Pack = {
 	zip: JSZip,
 	meta: PackFile,
 	data: {
-		functions: PackFile<string[]>[],
 		[category: string]: PackFile[],
 	},
 }
@@ -49,7 +46,7 @@ export namespace Pack {
 			pack.data[category] = await loadCategory(zip, category)
 		}))
 		pack.data.functions = await loadFunctions(zip)
-		pack.meta = { ...await loadJson(zip, 'pack.mcmeta')  }
+		pack.meta = { name: 'pack', ...await loadJson(zip, 'pack.mcmeta') }
 		console.log(pack)
 		return pack
 	}
@@ -59,19 +56,19 @@ export namespace Pack {
 		return Promise.all(Object.keys(zip.files)
 			.map(f => f.match(matcher)).filter(m => m)
 			.map(async m => ({
-				...await loadJson(zip, m![0]),
 				name: `${m![1]}:${m![2]}`,
+				...await loadJson(zip, m![0]),
 			}))
 		)
 	}
 
-	async function loadJson(zip: JSZip, path: string): Promise<PackFile> {
-		const file = await loadFile(zip, path)
-		let text = file.data
+	async function loadJson(zip: JSZip, path: string) {
+		let text = await loadText(zip, path)
+		const indent = detectIndent(text).indent
 		try {
 			text = text.replaceAll('\u200B', '').replaceAll('\u200C', '').replaceAll('\u200D', '').replaceAll('\uFEFF', '')
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
-			return { ...file, data: JSON.parse(text) }
+			return { data: JSON.parse(text), indent }
 		} catch (e) {
 			throw new Error(`Cannot parse "${path}": ${e.message}.`)
 		}
@@ -82,29 +79,18 @@ export namespace Pack {
 		return Promise.all(Object.keys(zip.files)
 			.map(f => f.match(matcher)).filter(m => m)
 			.map(async m => ({
-				...await loadFunction(zip, m![0]),
-				name: `${m![0]}:${m![1]}`,
-			})))
+				name: `${m![1]}:${m![2]}`,
+				data: (await loadText(zip, m![0])).split('\n'),
+			}))
+		)
 	}
 
-	async function loadFunction(zip: JSZip, path: string): Promise<PackFile> {
-		const file = await loadFile(zip, path)
-		return { ...file, data: file.data.split('\n') }
-	}
-
-	async function loadFile(zip: JSZip, path: string): Promise<PackFile<string>> {
+	async function loadText(zip: JSZip, path: string) {
 		const file = zip.files[path]
 		if (!file) {
 			throw new Error(`Cannot find "${path}".`)
 		}
-		const text = await file.async('text')
-		return {
-			name: file.name,
-			data: text,
-			indent: detectIndent(text).indent,
-			unixPermissions: file.unixPermissions ?? undefined,
-			dosPermissions: file.dosPermissions ?? undefined,
-		}
+		return await file.async('text')
 	}
 
 	export async function toZip(pack: Pack) {
@@ -112,34 +98,32 @@ export namespace Pack {
 			writeCategory(pack.zip, category, pack.data[category])
 		})
 		writeFunctions(pack.zip, pack.data.functions)
-		writeJson(pack.zip, 'pack.mcmeta', pack.meta)
+		writeJson(pack.zip, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
 		const blob = await pack.zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
 		return URL.createObjectURL(blob)
 	}
 
 	function writeCategory(zip: JSZip, category: string, data: PackFile[]) {
-		data.forEach(file => {
-			const [namespace, path] = file.name.split(':')
-			writeJson(zip, `data/${namespace}/${category}/${path}.json`, file)
+		data.forEach(({ name, data, indent }) => {
+			const [namespace, path] = name.split(':')
+			writeJson(zip, `data/${namespace}/${category}/${path}.json`, data, indent)
 		})
 	}
 
 	function writeFunctions(zip: JSZip, functions: PackFile[]) {
-		functions.forEach(file => {
-			const [namespace, path] = file.name.split(':')
-			zip.file(`data/${namespace}/functions/${path}.mcfunction`, file.data.join('\n'), {
-				unixPermissions: file.unixPermissions,
-				dosPermissions: file.dosPermissions,
-			})
+		functions.forEach(({ name, data }) => {
+			const [namespace, path] = name.split(':')
+			writeText(zip, `data/${namespace}/functions/${path}.mcfunction`, data.join('\n'))
 		})
 	}
 
-	function writeJson(zip: JSZip, path: string, file: PackFile) {
-		const text = JSON.stringify(file.data, null, file.indent) + '\n'
-		zip.file(path, text, {
-			unixPermissions: file.unixPermissions,
-			dosPermissions: file.dosPermissions,
-		})
+	function writeJson(zip: JSZip, path: string, data: any, indent?: string) {
+		const text = JSON.stringify(data, null, indent) + '\n'
+		writeText(zip, path, text)
+	}
+
+	function writeText(zip: JSZip, path: string, data: any) {
+		zip.file(path, data)
 	}
 
 	export async function upgrade(pack: Pack, config: FixConfig) {
