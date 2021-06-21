@@ -43,7 +43,7 @@ export namespace Fix {
 }
 
 export type FixConfig = {
-	replaceitem: boolean,
+	functions: boolean,
 	ids: boolean,
 	itemBlockPredicates: boolean,
 	worldgen: boolean,

@@ -12,7 +12,7 @@ import { StructureFeature } from './StructureFeature'
 export const Fixes = Fix.all(
 	Fix.when('ids', Ids),
 	Fix.when('itemBlockPredicates', Predicates),
-	Fix.when('replaceitem', Function),
+	Fix.when('functions', Function),
 	Fix.when('worldgen',
 		DimensionType,
 		NoiseSettings,

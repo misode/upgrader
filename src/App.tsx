@@ -14,7 +14,7 @@ export function App() {
 	const [packs, setPacks] = useState<Pack[]>([])
 	const [errors, setErrors] = useState<AppError[]>([])
 	const [config, setConfig] = useState<FixConfig>({
-		replaceitem: true,
+		functions: true,
 		ids: true,
 		itemBlockPredicates: true,
 		worldgen: true,
@@ -67,7 +67,7 @@ export function App() {
 			<p>Converts from 1.16.5 to 1.17</p>
 		</div>
 		<div class="configs">
-			<Config name="Upgrade /replaceitem" value={config.replaceitem} onChange={v => setConfig({ ...config, replaceitem: v })} />
+			<Config name="Upgrade /replaceitem and play_one_minute" value={config.functions} onChange={v => setConfig({ ...config, functions: v })} />
 			<Config name="Upgrade grass_path in tags" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
 			<Config name="Upgrade item and block predicates" value={config.itemBlockPredicates} onChange={v => setConfig({ ...config, itemBlockPredicates: v })} />
 			<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
