@@ -9,10 +9,10 @@ const timeObjectiveRegex = /scoreboard objectives add ([^ ]+) (minecraft.)?custo
 export const Function = Fix.onFile('functions', (data: string[]) => {
 	data.forEach((line, i) => {
 		if (line.startsWith('replaceitem ') || line.startsWith('execute ')) {
-			data[i] = line.replace(replaceitemRegex, 'item replace $1 with ')
+			data[i] = data[i].replace(replaceitemRegex, 'item replace $1 with ')
 		}
 		if (line.startsWith('scoreboard') || line.startsWith('execute')) {
-			data[i] = line.replace(timeObjectiveRegex, 'scoreboard objectives add $1 $2custom:$3total_world_time')
+			data[i] = data[i].replace(timeObjectiveRegex, 'scoreboard objectives add $1 $2custom:$3play_time')
 		}
 	})
 })
