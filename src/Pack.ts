@@ -1,5 +1,6 @@
 import detectIndent from 'detect-indent'
 import JSZip from 'jszip'
+import stripJsonComments from 'strip-json-comments'
 import type { FixConfig } from './Fix'
 import { Fixes } from './fixes'
 import type { Version } from './Version'
@@ -69,7 +70,7 @@ export namespace Pack {
 		try {
 			text = text.replaceAll('\u200B', '').replaceAll('\u200C', '').replaceAll('\u200D', '').replaceAll('\uFEFF', '')
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
-			return { data: JSON.parse(text), indent }
+			return { data: JSON.parse(stripJsonComments(text)), indent }
 		} catch (e: any) {
 			throw new Error(`Cannot parse "${path}": ${e.message}.`)
 		}
