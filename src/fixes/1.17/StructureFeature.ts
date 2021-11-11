@@ -1,4 +1,4 @@
-import { Fix } from '../Fix'
+import { Fix } from '../../Fix'
 
 /**
  * Adds the new config property to the nether_fossil structure feature

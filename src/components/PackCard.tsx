@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'preact/hooks'
 import type { FixConfig } from '../Fix'
 import { Pack } from '../Pack'
+import type { Version } from '../Version'
 import { Octicon } from './Octicon'
 
-export function PackCard({ pack, config, onError }: { pack: Pack, config: FixConfig, onError: (error: Error) => unknown }) {
+type PackCardProps = {
+	pack: Pack,
+	config: FixConfig,
+	source: Version,
+	target: Version,
+	onError: (error: Error) => unknown,
+}
+export function PackCard({ pack, config, source, target, onError }: PackCardProps) {
 	const [status, setStatus] = useState('Loading...')
 	const [download, setDownload] = useState<string | null>(null)
 	const [alerts, setAlerts] = useState<string[]>([])
@@ -25,14 +33,14 @@ export function PackCard({ pack, config, onError }: { pack: Pack, config: FixCon
 		(async () => {
 			try {
 				setStatus('Upgrading...')
-				const { warnings } = await Pack.upgrade(pack, config)
+				const { warnings } = await Pack.upgrade(pack, config, source, target)
 				await new Promise(res => setTimeout(res, 500))
 				if (warnings) setAlerts(warnings)
 
 				setStatus('Zipping...')
 				const download = await Pack.toZip(pack)
 				setDownload(download)
-			} catch (e) {
+			} catch (e: any) {
 				onError(e)
 				setError('Error during upgrading')
 			}

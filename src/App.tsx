@@ -2,8 +2,10 @@ import { useState } from 'preact/hooks'
 import { Config } from './components/Config'
 import { Octicon } from './components/Octicon'
 import { PackCard } from './components/PackCard'
+import { VersionPicker } from './components/VersionPicker'
 import type { FixConfig } from './Fix'
 import { Pack } from './Pack'
+import { Version } from './Version'
 
 export type AppError = {
 	process: 'loading' | 'upgrading',
@@ -13,10 +15,12 @@ export type AppError = {
 export function App() {
 	const [packs, setPacks] = useState<Pack[]>([])
 	const [errors, setErrors] = useState<AppError[]>([])
+	const [source, setSource] = useState<Version>('1.16.5')
+	const [target, setTarget] = useState<Version>('1.17.1')
 	const [config, setConfig] = useState<FixConfig>({
 		functions: true,
 		ids: true,
-		itemBlockPredicates: true,
+		predicates: true,
 		worldgen: true,
 		packFormat: true,
 	})
@@ -41,7 +45,7 @@ export function App() {
 			const newPacks = await Promise.all(promises.map(async promise => {
 				try {
 					return await promise
-				} catch (error) {
+				} catch (error: any) {
 					setErrors([...errors, { process: 'loading', error }])
 					console.error(error)
 					return
@@ -59,17 +63,22 @@ export function App() {
 	return <main onDrop={onDrop} onDragOver={e => e.preventDefault()}>
 		{packs.length > 0 && <>
 			<div class="packs">
-				{packs.map(pack => <PackCard pack={pack} config={config} onError={onUpgradeError} />)}
+				{packs.map(pack => <PackCard {...{pack, config, source, target}} onError={onUpgradeError} />)}
 			</div>
 		</>}
 		<div class="drop">
 			<h1>Drop data pack here</h1>
-			<p>Converts from 1.16.5 to 1.17</p>
+			<p>Convert from <VersionPicker value={source} onChange={setSource}/> to <VersionPicker value={target} onChange={setTarget}/></p>
+			{!Version.order(source, target)
+				? <p class="error-message">Invalid versions</p>
+				: Version.intersects(source, target, '1.17.1', '1.18-pre1')
+					? <p class="error-message">This upgrade is still being worked on...</p>
+					: null}
 		</div>
 		<div class="configs">
-			<Config name="Upgrade /replaceitem and play_one_minute" value={config.functions} onChange={v => setConfig({ ...config, functions: v })} />
-			<Config name="Upgrade grass_path in tags" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
-			<Config name="Upgrade item and block predicates" value={config.itemBlockPredicates} onChange={v => setConfig({ ...config, itemBlockPredicates: v })} />
+			<Config name="Upgrade functions" value={config.functions} onChange={v => setConfig({ ...config, functions: v })} />
+			<Config name="Upgrade IDs" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
+			<Config name="Upgrade predicates" value={config.predicates} onChange={v => setConfig({ ...config, predicates: v })} />
 			<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
 			<Config name="Upgrade pack_format" value={config.packFormat} onChange={v => setConfig({ ...config, packFormat: v })} />
 		</div>

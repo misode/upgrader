@@ -1,5 +1,5 @@
-import type { Fix } from '../Fix'
-import type { Pack } from '../Pack'
+import type { Fix } from '../../Fix'
+import type { Pack } from '../../Pack'
 
 /**
  * Sets the pack.mcmeta "pack_format" to 7

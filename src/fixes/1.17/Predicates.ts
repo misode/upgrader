@@ -1,4 +1,4 @@
-import { Fix } from '../Fix'
+import { Fix } from '../../Fix'
 
 /**
  * Fixes item and block predicates all over predicates, advancements and loot tables

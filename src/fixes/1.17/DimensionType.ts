@@ -1,4 +1,4 @@
-import { Fix } from '../Fix'
+import { Fix } from '../../Fix'
 
 /**
  * Adds the "min_y" and "height" properties to dimension types

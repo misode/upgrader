@@ -1,4 +1,4 @@
-import { Fix } from '../Fix'
+import { Fix } from '../../Fix'
 
 /**
  * Adds the new config properties to configured carvers

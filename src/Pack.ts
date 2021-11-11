@@ -2,6 +2,7 @@ import detectIndent from 'detect-indent'
 import JSZip from 'jszip'
 import type { FixConfig } from './Fix'
 import { Fixes } from './fixes'
+import type { Version } from './Version'
 
 export const categories = [
 	'advancements',
@@ -69,7 +70,7 @@ export namespace Pack {
 			text = text.replaceAll('\u200B', '').replaceAll('\u200C', '').replaceAll('\u200D', '').replaceAll('\uFEFF', '')
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
 			return { data: JSON.parse(text), indent }
-		} catch (e) {
+		} catch (e: any) {
 			throw new Error(`Cannot parse "${path}": ${e.message}.`)
 		}
 	}
@@ -126,19 +127,21 @@ export namespace Pack {
 		zip.file(path, data)
 	}
 
-	export async function upgrade(pack: Pack, config: FixConfig) {
-		if (pack.meta.data.pack.pack_format === 7) {
-			return {
-				warnings: ['This pack already has pack_format 7 and cannot be upgraded.'],
-			}
-		}
-
+	export async function upgrade(pack: Pack, config: FixConfig, source: Version, target: Version) {
 		const warnings: string[] = []
 		const ctx = {
 			warn: (message: string) => warnings.push(message),
 			config: (key: keyof FixConfig) => config[key],
+			source: () => source,
+			target: () => target,
 		}
-		Fixes(pack, ctx)
+		try {
+			Fixes(pack, ctx)
+		} catch (e) {
+			if (e instanceof Error) {
+				return { warnings: [e.message] }
+			}
+		}
 		return { warnings }
 	}
 }

@@ -1,24 +1,8 @@
 import { Fix } from '../Fix'
-import { Carver } from './Carver'
-import { DimensionType } from './DimensionType'
-import { Feature } from './Feature'
-import { Function } from './Function'
-import { Ids } from './Ids'
-import { NoiseSettings } from './NoiseSettings'
-import { PackFormat } from './PackFormat'
-import { Predicates } from './Predicates'
-import { StructureFeature } from './StructureFeature'
+import { Fixes17 } from './1.17'
+import { Fixes18 } from './1.18'
 
 export const Fixes = Fix.all(
-	Fix.when('ids', Ids),
-	Fix.when('itemBlockPredicates', Predicates),
-	Fix.when('functions', Function),
-	Fix.when('worldgen',
-		DimensionType,
-		NoiseSettings,
-		StructureFeature,
-		Carver,
-		Feature
-	),
-	Fix.when('packFormat', PackFormat),
+	Fix.version('1.16.5', '1.17.1', Fixes17),
+	Fix.version('21w44a', '1.18-pre1', Fixes18)
 )

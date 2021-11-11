@@ -1,4 +1,4 @@
-import { Fix } from '../Fix'
+import { Fix } from '../../Fix'
 
 /**
  * Renames grass_path to dirt_path

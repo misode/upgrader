@@ -1,4 +1,4 @@
-import { Fix } from '../Fix'
+import { Fix } from '../../Fix'
 
 const replaceitemRegex = /replaceitem ((?:entity @[parse](\[.*\]*)?|block( [^ ]+){3}) [a-z0-9.]+) /
 const timeObjectiveRegex = /scoreboard objectives add ([^ ]+) (minecraft.)?custom:(minecraft.)?play_one_minute/

@@ -1,4 +1,5 @@
 import type { categories, Pack } from './Pack'
+import { Version } from './Version'
 
 export type Fix = (pack: Pack, ctx: FixContext) => unknown
 
@@ -24,7 +25,7 @@ export namespace Fix {
 				}
 				try {
 					fix(data, fileCtx)
-				} catch (e) {
+				} catch (e: any) {
 					const error = new Error(`Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${name}: ${e.message}`)
 					error.stack = e.stack
 					throw error
@@ -40,12 +41,34 @@ export namespace Fix {
 			}
 		}
 	}
+
+	export function assert(predicate: (pack: Pack, ctx: FixContext) => boolean, message: string): Fix {
+		return (pack, ctx) => {
+			if (!predicate(pack, ctx)) {
+				throw new Error(message)
+			}
+		}
+	}
+
+	export function version(from: Version, to: Version, ...fixes: Fix[]): Fix {
+		return (pack, ctx) => {
+			if (Version.intersects(ctx.source(), ctx.target(), from, to)) {
+				fixes.forEach(fix => fix(pack, ctx))
+			}
+		}
+	}
+
+	export function debug(message: string): Fix {
+		return () => {
+			console.debug(message)
+		}
+	}
 }
 
 export type FixConfig = {
 	functions: boolean,
 	ids: boolean,
-	itemBlockPredicates: boolean,
+	predicates: boolean,
 	worldgen: boolean,
 	packFormat: boolean,
 }
@@ -53,4 +76,6 @@ export type FixConfig = {
 export interface FixContext {
 	warn: (message: string) => unknown
 	config: (key: keyof FixConfig) => boolean
+	source: () => Version,
+	target: () => Version,
 }
