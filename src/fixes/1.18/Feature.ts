@@ -285,6 +285,4 @@ function primeFactors(n: number) {
 	return factors
 }
 
-console.log(primeFactors(5000))
-
 const FeatureRemovals = new Set(JSON.parse('["acacia","azalea_tree","birch","birch_bees_005","birch_other","bonus_chest","brown_mushroom_giant","cave_vine","cave_vine_in_moss","clay_pool_with_dripleaves","clay_with_dripleaves","crimson_fungi_planted","dark_oak","dripleaf","end_gateway","end_gateway_delayed","end_island","fancy_oak","fancy_oak_bees_005","flower_forest","flower_plain_decorated","forest_flower_trees","forest_flower_vegetation","forest_flower_vegetation_common","grove_vegetation","huge_brown_mushroom","huge_red_mushroom","jungle_tree_no_vine","lake_lava","meadow_trees","mega_jungle_tree","mega_pine","mega_spruce","moss_patch","moss_patch_bonemeal","moss_patch_ceiling","moss_vegetation","mushroom_field_vegetation","oak","oak_bees_005","ore_debris_large","patch_berry_bush","patch_brown_mushroom","patch_cactus","patch_red_mushroom","patch_taiga_grass","patch_waterlilly","pile_hay","pile_ice","pile_melon","pile_pumpkin","pile_snow","pine","plain_vegetation","red_mushroom_giant","rooted_azalea_trees","spring_lava_double","spruce","swamp_oak","taiga_vegetation","trees_giant","trees_giant_spruce","trees_jungle_edge","trees_mountain","trees_mountain_edge","trees_shattered_savanna","warped_fungi_planted"]'))
