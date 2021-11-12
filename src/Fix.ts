@@ -77,6 +77,7 @@ export type FixConfig = {
 export interface FixContext {
 	warn: (message: string) => unknown
 	config: (key: keyof FixConfig) => boolean
+	read: (category: string, name: string) => PackFile | undefined,
 	create: (category: string, name: string, data: any) => unknown,
 	source: () => Version,
 	target: () => Version,

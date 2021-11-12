@@ -6,13 +6,20 @@ export const Feature = Fix.all(
 	Fix.onFile('worldgen/configured_feature', fixRootFeature),
 
 	// Remove or rename vanilla configured features
-	Fix.onFile('worldgen/biome', ({ data }) => {
+	Fix.onFile('worldgen/biome', ({ data }, ctx) => {
 		if (!Array.isArray(data.features)) return
 		data.features.forEach((d: any) => {
 			if (!Array.isArray(d)) return
 			d.forEach((e, i) => {
 				if (typeof e === 'string') {
-					d.splice(i, 1, ...fixFeatureId(e))
+					const replacement = fixFeatureId(e)
+					d.splice(i, 1, ...replacement)
+					replacement.forEach(r => {
+						const file = ctx.read('worldgen/placed_feature', r)
+						if (!file) return
+						if (file.data.placement.find((p: any) => p.type === 'minecraft:biome')) return
+						file.data.placement.push({ type: 'minecraft:biome' })
+					})
 				}
 			})
 		})
@@ -52,7 +59,7 @@ function fixRootFeature(file: PackFile, ctx: FixContext) {
 	}
 	ctx.create('worldgen/placed_feature', file.name, {
 		feature: typeof f.feature === 'string' ? f.feature : file.name,
-		placement: [...f?.placement, { type: 'minecraft:biome' }],
+		placement: f?.placement,
 	})
 }
 
