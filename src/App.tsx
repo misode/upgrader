@@ -5,6 +5,7 @@ import { PackCard } from './components/PackCard'
 import { VersionPicker } from './components/VersionPicker'
 import type { FixConfig } from './Fix'
 import { Pack } from './Pack'
+import { Store } from './Store'
 import { Version } from './Version'
 
 export type AppError = {
@@ -15,8 +16,8 @@ export type AppError = {
 export function App() {
 	const [packs, setPacks] = useState<Pack[]>([])
 	const [errors, setErrors] = useState<AppError[]>([])
-	const [source, setSource] = useState<Version>('1.16.5')
-	const [target, setTarget] = useState<Version>('1.17.1')
+	const [source, setSource] = useState<Version>(Store.getSource())
+	const [target, setTarget] = useState<Version>(Store.getTarget())
 	const [config, setConfig] = useState<FixConfig>({
 		functions: true,
 		ids: true,
@@ -24,6 +25,14 @@ export function App() {
 		worldgen: true,
 		packFormat: true,
 	})
+	const changeSource = (source: Version) => {
+		Store.setSource(source)
+		setSource(source)
+	}
+	const changeTarget = (target: Version) => {
+		Store.setTarget(target)
+		setTarget(target)
+	}
 
 	const onDrop = async (e: DragEvent) => {
 		e.preventDefault()
@@ -68,7 +77,7 @@ export function App() {
 		</>}
 		<div class="drop">
 			<h1>Drop data pack here</h1>
-			<p>Convert from <VersionPicker value={source} onChange={setSource}/> to <VersionPicker value={target} onChange={setTarget}/></p>
+			<p>Convert from <VersionPicker value={source} onChange={changeSource}/> to <VersionPicker value={target} onChange={changeTarget}/></p>
 			{!Version.order(source, target)
 				? <p class="error-message">Invalid versions</p>
 				: Version.includes(source, target, '1.17.1', '21w44a')
