@@ -125,7 +125,7 @@ function fixFeature(data: any, ctx: FixContext) {
 			break
 		case 'vegetation_patch':
 		case 'waterlogged_vegetation_patch':
-			data = fromPlacedFeature(fixFeature(data.config.vegetation_feature, ctx))
+			data.config.vegetation_feature = fromPlacedFeature(fixFeature(data.config.vegetation_feature, ctx))
 	}
 	return {
 		feature: data,
