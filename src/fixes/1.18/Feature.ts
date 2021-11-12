@@ -103,17 +103,17 @@ function fixFeature(data: any, ctx: FixContext) {
 		case 'random_patch':
 		case 'flower':
 		case 'no_bonemeal_flower':
-			data.config.feature = fixFeature(data.config.feature, ctx)
+			data.config.feature = refPlacedFeature(fixFeature(data.config.feature, ctx))
 			break
 		case 'random_selector':
 			data.config.features.forEach((e: any) => {
-				e.feature = fixFeature(e.feature, ctx)
+				e.feature = refPlacedFeature(fixFeature(e.feature, ctx))
 			})
-			data.config.default = fixFeature(data.config.default, ctx)
+			data.config.default = refPlacedFeature(fixFeature(data.config.default, ctx))
 			break
 		case 'simple_random_selector':
 			data.config.features = data.config.features.map((f: any) => {
-				return fixFeature(f, ctx)
+				return refPlacedFeature(fixFeature(f, ctx))
 			})
 			break
 		case 'twisting_vines':
@@ -145,6 +145,13 @@ function fromPlacedFeature(data: any) {
 			},
 		}
 	}
+}
+
+function refPlacedFeature(data: { feature: unknown, placement: unknown[] }) {
+	if (typeof data.feature === 'string' && data.placement.length === 0) {
+		return data.feature
+	}
+	return data
 }
 
 function fixDecorator(data: any, ctx: FixContext): any[] {
