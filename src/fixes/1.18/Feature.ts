@@ -8,31 +8,30 @@ export const Feature = Fix.all(
 	// Remove or rename vanilla configured features
 	Fix.onFile('worldgen/biome', ({ data }, ctx) => {
 		if (!Array.isArray(data.features)) return
-		data.features.forEach((d: any) => {
-			if (!Array.isArray(d)) return
-			d.forEach((e, i) => {
-				if (typeof e === 'string') {
-					const replacement = fixFeatureId(e)
-					d.splice(i, 1, ...replacement)
-					replacement.forEach(r => {
-						const file = ctx.read('worldgen/placed_feature', r)
-						if (!file) return
-						if (file.data.placement.find((p: any) => p.type === 'minecraft:biome')) return
-						file.data.placement.push({ type: 'minecraft:biome' })
-					})
-				}
+		data.features = data.features.map((d: any) => {
+			if (!Array.isArray(d)) return d
+			return d.flatMap(e => {
+				if (typeof e !== 'string') return e
+				const replacement = fixFeatureId(e, ctx)
+				replacement.forEach(r => {
+					const file = ctx.read('worldgen/placed_feature', r)
+					if (!file) return
+					if (file.data.placement.find((p: any) => p.type === 'minecraft:biome')) return
+					file.data.placement.push({ type: 'minecraft:biome' })
+				})
+				return replacement
 			})
 		})
 	}),
 )
 
-function fixFeatureId(str: string) {
+function fixFeatureId(str: string, ctx: FixContext) {
 	const id = str.replace(/^minecraft:/, '')
 	if (id === 'meadow_trees') {
 		return ['minecraft:trees_meadow']
 	} else if (id === 'lake_lava') {
 		return ['minecraft:lake_lava_surface', 'minecraft:lake_lava_underground']
-	} else if (FeatureRemovals.has(id)) {
+	} else if (FeatureRemovals.has(id) && ctx.read('worldgen/placed_feature', id) === undefined) {
 		return []
 	} else {
 		return [str]

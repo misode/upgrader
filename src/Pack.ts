@@ -135,7 +135,8 @@ export namespace Pack {
 			warn: (message: string) => warnings.push(message),
 			config: (key: keyof FixConfig) => config[key],
 			read: (category: string, name: string) => {
-				return pack.data[category].find(f => f.name === name)
+				return pack.data[category].find(f =>
+					f.name.replace(/^minecraft:/, '') === name.replace(/^minecraft:/, ''))
 			},
 			create: (category: string, name: string, data: any) => {
 				pack.data[category].push({
