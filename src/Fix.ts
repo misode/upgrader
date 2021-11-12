@@ -1,4 +1,4 @@
-import type { categories, Pack } from './Pack'
+import type { categories, Pack, PackFile } from './Pack'
 import { Version } from './Version'
 
 export type Fix = (pack: Pack, ctx: FixContext) => unknown
@@ -16,18 +16,19 @@ export namespace Fix {
 	/**
 	 * A simple fix that runs on one file category
 	 */
-	export function onFile(category: typeof categories[number] | 'functions', fix: (data: any, ctx: FixContext) => unknown): Fix {
+	export function onFile(category: typeof categories[number] | 'functions', fix: (file: PackFile, ctx: FixContext) => unknown): Fix {
 		return (pack, ctx) => {
-			for (const { name, data } of pack.data[category]) {
-				const fileCtx = {
+			for (const file of pack.data[category]) {
+				const fileCtx: FixContext = {
 					...ctx,
-					warn: (message: string) => ctx.warn(`${name} ${message}`),
+					warn: (message: string) => ctx.warn(`${file.name} ${message}`),
 				}
 				try {
-					fix(data, fileCtx)
+					fix(file, fileCtx)
 				} catch (e: any) {
-					const error = new Error(`Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${name}: ${e.message}`)
+					const error = new Error(`Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${file.name}: ${e.message}`)
 					error.stack = e.stack
+					console.warn(error)
 					throw error
 				}
 			}
@@ -52,7 +53,7 @@ export namespace Fix {
 
 	export function version(from: Version, to: Version, ...fixes: Fix[]): Fix {
 		return (pack, ctx) => {
-			if (Version.intersects(ctx.source(), ctx.target(), from, to)) {
+			if (Version.includes(ctx.source(), ctx.target(), from, to)) {
 				fixes.forEach(fix => fix(pack, ctx))
 			}
 		}
@@ -76,6 +77,7 @@ export type FixConfig = {
 export interface FixContext {
 	warn: (message: string) => unknown
 	config: (key: keyof FixConfig) => boolean
+	create: (category: string, name: string, data: any) => unknown,
 	source: () => Version,
 	target: () => Version,
 }

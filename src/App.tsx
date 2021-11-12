@@ -71,7 +71,7 @@ export function App() {
 			<p>Convert from <VersionPicker value={source} onChange={setSource}/> to <VersionPicker value={target} onChange={setTarget}/></p>
 			{!Version.order(source, target)
 				? <p class="error-message">Invalid versions</p>
-				: Version.intersects(source, target, '1.17.1', '1.18-pre1')
+				: Version.includes(source, target, '1.17.1', '21w44a')
 					? <p class="error-message">This upgrade is still being worked on...</p>
 					: null}
 		</div>

@@ -4,8 +4,8 @@ import { Fix } from '../../Fix'
  * Renames grass_path to dirt_path
  */
 export const Ids = Fix.all(
-	Fix.onFile('tags/blocks', fixTag),
-	Fix.onFile('tags/items', fixTag),
+	Fix.onFile('tags/blocks', ({ data }) => fixTag(data)),
+	Fix.onFile('tags/items', ({ data }) => fixTag(data)),
 )
 
 function fixTag(data: any) {

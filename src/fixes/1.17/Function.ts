@@ -6,7 +6,7 @@ const timeObjectiveRegex = /scoreboard objectives add ([^ ]+) (minecraft.)?custo
 /**
  * Upgrades /replaceitem to /item replace ... with
  */
-export const Function = Fix.onFile('functions', (data: string[]) => {
+export const Function = Fix.onFile('functions', ({ data }: { data: string[] }) => {
 	data.forEach((line, i) => {
 		if (line.startsWith('replaceitem ') || line.startsWith('execute ')) {
 			data[i] = data[i].replace(replaceitemRegex, 'item replace $1 with ')

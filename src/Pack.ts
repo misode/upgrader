@@ -1,7 +1,7 @@
 import detectIndent from 'detect-indent'
 import JSZip from 'jszip'
 import stripJsonComments from 'strip-json-comments'
-import type { FixConfig } from './Fix'
+import type { FixConfig, FixContext } from './Fix'
 import { Fixes } from './fixes'
 import type { Version } from './Version'
 
@@ -19,11 +19,12 @@ export const categories = [
 	'worldgen/configured_structure_feature',
 	'worldgen/configured_surface_builder',
 	'worldgen/noise_settings',
+	'worldgen/placed_feature',
 	'worldgen/processor_list',
 	'worldgen/template_pool',
 ] as const
 
-type PackFile = {
+export type PackFile = {
 	name: string,
 	data: any,
 	indent?: string,
@@ -130,19 +131,28 @@ export namespace Pack {
 
 	export async function upgrade(pack: Pack, config: FixConfig, source: Version, target: Version) {
 		const warnings: string[] = []
-		const ctx = {
+		const ctx: FixContext = {
 			warn: (message: string) => warnings.push(message),
 			config: (key: keyof FixConfig) => config[key],
+			create: (category: string, name: string, data: any) => {
+				pack.data[category].push({
+					name: name,
+					indent: pack.meta.indent,
+					data,
+				})
+			},
 			source: () => source,
 			target: () => target,
 		}
-		try {
-			Fixes(pack, ctx)
-		} catch (e) {
-			if (e instanceof Error) {
-				return { warnings: [e.message] }
-			}
-		}
+		Fixes(pack, ctx)
 		return { warnings }
 	}
+}
+
+const dec2hex = (dec: number) => ('0' + dec.toString(16)).substr(-2)
+
+export function hexId(length = 12) {
+	var arr = new Uint8Array(length / 2)
+	window.crypto.getRandomValues(arr)
+	return Array.from(arr, dec2hex).join('')
 }

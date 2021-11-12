@@ -18,7 +18,7 @@ export function PackCard({ pack, config, source, target, onError }: PackCardProp
 	const [error, setError] = useState<string | null>(null)
 	const [alertsHidden, setAlertsHidden] = useState(false)
 
-	const downloadName = pack.name.replace(/\.zip$/, '_1_17.zip')
+	const downloadName = pack.name.replace(/\.zip$/, `_${target}.zip`)
 	const problems: Record<string, string[]> = {}
 	alerts.forEach(a => {
 		if (a.match(/^[a-z0-9_-]+:[a-z0-9/_-]+ /)) {
@@ -53,7 +53,7 @@ export function PackCard({ pack, config, source, target, onError }: PackCardProp
 
 	return <div class="pack">
 		<div class="pack-head">
-			{download && <a class="pack-status download" href={download} download={downloadName} data-hover="Download data pack for 1.17">
+			{download && <a class="pack-status download" href={download} download={downloadName} data-hover={`Download data pack for ${target}`}>
 				{Octicon.download}
 			</a>}
 			{(!download && !error) && <div class="pack-status loading" data-hover={status}>

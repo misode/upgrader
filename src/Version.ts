@@ -10,7 +10,7 @@ export namespace Version {
 		return ord(before) < ord(after)
 	}
 
-	export function intersects(source: Version, target: Version, from: Version, to: Version) {
-		return ord(source) <= ord(from) && ord(target) >= ord(to)
+	export function includes(source: Version, target: Version, from: Version, to: Version) {
+		return ord(source) < ord(to) && ord(target) > ord(from)
 	}
 }

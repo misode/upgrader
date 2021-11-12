@@ -4,8 +4,8 @@ import { Fix } from '../../Fix'
  * Adds the new config property to the nether_fossil structure feature
  */
 export const StructureFeature = Fix.all(
-	Fix.onFile('worldgen/configured_structure_feature', fixStructureFeature),
-	Fix.onFile('worldgen/biome', (data) => {
+	Fix.onFile('worldgen/configured_structure_feature', ({ data }) => fixStructureFeature(data)),
+	Fix.onFile('worldgen/biome', ({ data }) => {
 		if (Array.isArray(data.starts)) {
 			data.starts.forEach(fixStructureFeature)
 		}

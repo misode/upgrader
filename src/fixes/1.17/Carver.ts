@@ -4,8 +4,8 @@ import { Fix } from '../../Fix'
  * Adds the new config properties to configured carvers
  */
 export const Carver = Fix.all(
-	Fix.onFile('worldgen/configured_carver', fixCarver),
-	Fix.onFile('worldgen/biome', (data) => {
+	Fix.onFile('worldgen/configured_carver', ({ data }) => fixCarver(data)),
+	Fix.onFile('worldgen/biome', ({ data }) => {
 		if (typeof data.carvers === 'object') {
 			data.carvers.air?.forEach(fixCarver)
 			data.carvers.liquid?.forEach(fixCarver)

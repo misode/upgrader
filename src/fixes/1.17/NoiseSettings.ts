@@ -4,8 +4,8 @@ import { Fix } from '../../Fix'
  * Adds the "min_y" and "height" properties to dimension types
  */
 export const NoiseSettings = Fix.all(
-	Fix.onFile('worldgen/noise_settings', fixNoiseSettings),
-	Fix.onFile('dimension', (data) => {
+	Fix.onFile('worldgen/noise_settings', ({ data }) => fixNoiseSettings(data)),
+	Fix.onFile('dimension', ({ data }) => {
 		if (data.generator?.type?.replace(/^minecraft:/, '') === 'noise') {
 			fixNoiseSettings(data.generator.settings)
 		}

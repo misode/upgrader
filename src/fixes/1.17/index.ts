@@ -11,7 +11,7 @@ import { StructureFeature } from './StructureFeature'
 
 export const Fixes17 = Fix.all(
 	Fix.debug('1.17 fixes'),
-	Fix.assert((pack) => pack.meta.data.pack.pack_format !== 7, 'This pack already has pack_format 7 and cannot be upgraded.'),
+	Fix.assert((pack) => pack.meta.data.pack.pack_format < 7, 'This pack already has pack_format 7 or higher and cannot be upgraded.'),
 	Fix.when('ids', Ids),
 	Fix.when('predicates', Predicates),
 	Fix.when('functions', Function),
