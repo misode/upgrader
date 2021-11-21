@@ -87,7 +87,7 @@ export function App() {
 		<div class="configs">
 			<Config name="Upgrade functions" value={config.functions} onChange={v => setConfig({ ...config, functions: v })} />
 			<Config name="Upgrade IDs" value={config.ids} onChange={v => setConfig({ ...config, ids: v })} />
-			<Config name="Upgrade predicates" value={config.predicates} onChange={v => setConfig({ ...config, predicates: v })} />
+			<Config name="Upgrade JSON files" value={config.predicates} onChange={v => setConfig({ ...config, predicates: v })} />
 			<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
 			<Config name="Upgrade pack_format" value={config.packFormat} onChange={v => setConfig({ ...config, packFormat: v })} />
 		</div>

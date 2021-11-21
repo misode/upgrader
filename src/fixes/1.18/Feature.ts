@@ -160,6 +160,7 @@ function fixDecorator(data: any, ctx: FixContext): any[] {
 	const type = data.type.replace(/^minecraft:/, '')
 	switch (type) {
 		case 'block_filter':
+			console.log('BLOCK FILTER', data)
 			return [{ type: 'minecraft:block_predicate_filter', ...data.config }]
 		case 'cave_surface':
 			const steps = data.config.floor_to_ceiling_search_range
