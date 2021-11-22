@@ -7,6 +7,8 @@ export const Feature = Fix.all(
 
 	// Remove or rename vanilla configured features
 	Fix.onFile('worldgen/biome', ({ data }, ctx) => {
+		data.player_spawn_friendly = undefined
+
 		if (!Array.isArray(data.features)) return
 		data.features = data.features.map((d: any) => {
 			if (!Array.isArray(d)) return d
@@ -77,6 +79,11 @@ function fixFeature(data: any, ctx: FixContext) {
 			const feature = collectDecorators(data, placement, ctx)
 			data = fixFeature(feature, ctx)?.feature
 			break
+		case 'glow_lichen':
+			data.config.can_be_placed_on = [...new Set(
+				data.config.can_be_placed_on.map((b: any) => b.Name)
+			)]
+			break
 		case 'lake':
 			data.config = {
 				fluid: {
@@ -96,10 +103,12 @@ function fixFeature(data: any, ctx: FixContext) {
 			data.config.spread_height = 4
 			break
 		case 'random_boolean_selector':
-			data.config.feature_false = fromPlacedFeature(fixFeature(data.config.feature_false, ctx))
-			data.config.feature_true = fromPlacedFeature(fixFeature(data.config.feature_true, ctx))
+			data.config.feature_false = refPlacedFeature(fixFeature(data.config.feature_false, ctx))
+			data.config.feature_true = refPlacedFeature(fixFeature(data.config.feature_true, ctx))
 			break
 		case 'root_system':
+			data.config.allowed_tree_position = { type: 'minecraft:true' }
+		// eslint-disable-next-line no-fallthrough
 		case 'random_patch':
 		case 'flower':
 		case 'no_bonemeal_flower':
@@ -125,25 +134,11 @@ function fixFeature(data: any, ctx: FixContext) {
 			break
 		case 'vegetation_patch':
 		case 'waterlogged_vegetation_patch':
-			data.config.vegetation_feature = fromPlacedFeature(fixFeature(data.config.vegetation_feature, ctx))
+			data.config.vegetation_feature = refPlacedFeature(fixFeature(data.config.vegetation_feature, ctx))
 	}
 	return {
 		feature: data,
 		placement,
-	}
-}
-
-function fromPlacedFeature(data: any) {
-	if (data.placement.length > 0) {
-		return data.feature
-	} else {
-		return {
-			type: 'minecraft:random_selector',
-			config: {
-				features: [],
-				default: data,
-			},
-		}
 	}
 }
 

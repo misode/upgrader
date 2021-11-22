@@ -1,4 +1,4 @@
-export const Versions = ['1.16.5', '1.17.1', '21w44a', '1.18-pre1'] as const
+export const Versions = ['1.16.5', '1.17.1', '21w44a', '1.18-pre5'] as const
 export type Version = typeof Versions[number]
 
 export namespace Version {
