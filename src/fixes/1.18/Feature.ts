@@ -1,13 +1,19 @@
-import type { FixContext } from '../../Fix'
-import { Fix } from '../../Fix'
-import type { PackFile } from '../../Pack'
+import type { FixContext } from '../../Fix';
+import { Fix } from '../../Fix';
+import type { PackFile } from '../../Pack';
 
 export const Feature = Fix.all(
 	Fix.onFile('worldgen/configured_feature', fixRootFeature),
 
-	// Remove or rename vanilla configured features
+	// Remove or rename vanilla configured features and carvers
 	Fix.onFile('worldgen/biome', ({ data }, ctx) => {
 		data.player_spawn_friendly = undefined
+
+		;['air', 'liquid'].forEach(step => {
+			if (Array.isArray(data.carvers[step])) {
+				data.carvers[step] = data.carvers[step].filter((c: any) => !CarverRemovals.has(c.replace(/^minecraft:/, '')))
+			}
+		})
 
 		if (!Array.isArray(data.features)) return
 		data.features = data.features.map((d: any) => {
@@ -33,7 +39,11 @@ function fixFeatureId(str: string, ctx: FixContext) {
 		return ['minecraft:trees_meadow']
 	} else if (id === 'lake_lava') {
 		return ['minecraft:lake_lava_surface', 'minecraft:lake_lava_underground']
-	} else if (FeatureRemovals.has(id) && ctx.read('worldgen/placed_feature', id) === undefined) {
+	} else if (FeatureRenames.has(id)) {
+		return [`minecraft:${FeatureRenames.get(id)}`]
+	} else if (FeatureNoPlacement.has(id) && ctx.read('worldgen/placed_feature', id) === undefined) {
+		return []
+	} else if (FeatureFullyRemoved.has(id)) {
 		return []
 	} else {
 		return [str]
@@ -45,12 +55,28 @@ function fixRootFeature(file: PackFile, ctx: FixContext) {
 
 	const f = fixFeature(file.data, ctx)
 	if (typeof f.feature === 'string') {
-		file.data = {
-			type: 'minecraft:random_selector',
-			config: {
-				features: [],
-				default: f.feature,
-			},
+		const id = f.feature.replace(/^minecraft:/, '')
+		if (FeatureFullyRemoved.has(id) || FeatureOnlyPlacement.has(id)) {
+			file.data = {
+				type: 'minecraft:no_op',
+				config: {},
+			}
+		} else {
+			if (FeatureNoPlacement.has(id)) {
+				f.feature = {
+					feature: f.feature,
+					placement: [],
+				}
+			} else if (FeatureRenames.has(id)) {
+				f.feature = `minecraft:${FeatureRenames.get(id)}`
+			}
+			file.data = {
+				type: 'minecraft:random_selector',
+				config: {
+					features: [],
+					default: f.feature,
+				},
+			}
 		}
 	} else {
 		file.data = {
@@ -65,12 +91,14 @@ function fixRootFeature(file: PackFile, ctx: FixContext) {
 }
 
 function fixFeature(data: any, ctx: FixContext) {
-	if (typeof data !== 'object') {
+	if (typeof data === 'string') {
 		return {
 			feature: data,
 			placement: [],
 		}
 	}
+
+	if (typeof data !== 'object') throw new Error('Feature is not an object nor a string')
 
 	const type = data.type.replace(/^minecraft:/, '')
 	const placement: any[] = []
@@ -145,7 +173,11 @@ function fixFeature(data: any, ctx: FixContext) {
 function refPlacedFeature(data: { feature: unknown, placement: unknown[] }) {
 	if (typeof data.feature === 'string' && data.placement.length === 0) {
 		const id = data.feature.replace(/^minecraft:/, '')
-		if (!FeatureRemovals.has(id)) {
+		const renamed = FeatureRenames.get(id)
+		if (renamed) {
+			return `minecraft:${renamed}`
+		}
+		if (!FeatureNoPlacement.has(id)) {
 			return data.feature
 		}
 	}
@@ -283,4 +315,53 @@ function primeFactors(n: number) {
 	return factors
 }
 
-const FeatureRemovals = new Set(JSON.parse('["acacia","azalea_tree","birch","birch_bees_005","birch_other","bonus_chest","brown_mushroom_giant","cave_vine","cave_vine_in_moss","clay_pool_with_dripleaves","clay_with_dripleaves","crimson_fungi_planted","dark_oak","dripleaf","end_gateway","end_gateway_delayed","end_island","fancy_oak","fancy_oak_bees_005","flower_forest","flower_plain_decorated","forest_flower_trees","forest_flower_vegetation","forest_flower_vegetation_common","grove_vegetation","huge_brown_mushroom","huge_red_mushroom","jungle_tree_no_vine","lake_lava","meadow_trees","mega_jungle_tree","mega_pine","mega_spruce","moss_patch","moss_patch_bonemeal","moss_patch_ceiling","moss_vegetation","mushroom_field_vegetation","oak","oak_bees_005","ore_debris_large","patch_berry_bush","patch_brown_mushroom","patch_cactus","patch_red_mushroom","patch_taiga_grass","patch_waterlilly","pile_hay","pile_ice","pile_melon","pile_pumpkin","pile_snow","pine","plain_vegetation","red_mushroom_giant","rooted_azalea_trees","spring_lava_double","spruce","swamp_oak","taiga_vegetation","trees_giant","trees_giant_spruce","trees_jungle_edge","trees_mountain","trees_mountain_edge","trees_shattered_savanna","warped_fungi_planted"]'))
+const FeatureFullyRemoved = new Set(['lake_water'])
+
+// Configured features in 21w44a that have no corresponding placed feature in 1.18-pre1
+const FeatureNoPlacement = new Set(['azalea_tree', 'birch_bees_005', 'bonus_chest', 'cave_vine_in_moss', 'clay_pool_with_dripleaves', 'clay_with_dripleaves', 'dripleaf', 'end_gateway_delayed', 'huge_brown_mushroom', 'huge_red_mushroom', 'jungle_tree_no_vine', 'moss_patch', 'moss_patch_bonemeal', 'moss_patch_ceiling', 'moss_vegetation', 'oak_bees_005', 'patch_brown_mushroom', 'patch_red_mushroom', 'spring_lava_double', 'swamp_oak'])
+
+// Configured features in 21w44a that have a corresponding placed feature, but their configured feature was removed.
+const FeatureOnlyPlacement = new Set(['patch_dead_bush_2'])
+
+// Configured features in 21w44a that got a new name as placed feature in 1.18-pre1
+const FeatureRenames = new Map(Object.entries({
+	acacia: 'acacia_checked',
+	birch: 'bircha_checked',
+	birch_other: 'trees_birch_and_oak',
+	brown_mushroom_giant: 'brown_mushroom_old_growth',
+	cave_vine: 'cave_vines',
+	crimson_fungi_planted: 'crimson_fungus_planted',
+	dark_oak: 'dark_oak_checked',
+	end_gateway: 'end_gateway_return',
+	end_island: 'end_island_decorated',
+	fancy_oak: 'fancy_oak_checked',
+	fancy_oak_bees_005: 'fancy_oak_bees',
+	flower_forest: 'flower_flower_forest',
+	flower_plain_decorated: 'flower_plains',
+	forest_flower_trees: 'trees_flower_forest',
+	forest_flower_vegetation: 'forest_flowers',
+	grove_vegetation: 'trees_grove',
+	meadow_trees: 'trees_meadow',
+	mega_jungle_tree: 'mega_jungle_tree_checked',
+	mega_pine: 'mega_pine_checked',
+	mega_spruce: 'mega_spruce_checked',
+	mushroom_field_vegetation: 'mushroom_island_vegetation',
+	ore_debris_large: 'ore_ancient_debris_large',
+	patch_cactus: 'patch_cactus_decorated',
+	patch_waterlilly: 'patch_waterlily',
+	pine: 'pine_checked',
+	plain_vegetation: 'trees_plains',
+	red_mushroom_giant: 'red_mushroom_old_growth',
+	rooted_azalea_trees: 'rooted_azalea_tree',
+	spruce: 'spruce_checked',
+	taiga_vegetation: 'trees_taiga',
+	trees_giant: 'trees_old_growth_pine_taiga',
+	trees_giant_spruce: 'trees_old_growth_spruce_taiga',
+	trees_jungle_edge: 'trees_sparse_jungle',
+	trees_mountain: 'trees_windswept_hills',
+	trees_mountain_edge: 'trees_windswept_forest',
+	trees_shattered_savanna: 'trees_windswept_savanna',
+	warped_fungi_planted: 'warped_fungus_planted',
+}))
+
+const CarverRemovals = new Set(['ocean_cave', 'prototype_canyon', 'prototype_cave', 'prototype_crevice', 'underwater_canyon', 'underwater_cave'])

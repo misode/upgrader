@@ -135,6 +135,9 @@ function fixFeature(data: any, ctx: FixContext) {
 				],
 			}
 			break
+		case 'root_system':
+			fixFeature(data.config.feature, ctx)
+			break
 		case 'simple_block':
 			const filters2 = []
 			if (isNonEmptyList(data.config.place_on)) {
@@ -230,6 +233,9 @@ function fixFeature(data: any, ctx: FixContext) {
 				},
 			]).config
 			break
+		case 'vegetation_patch':
+		case 'waterlogged_vegetation_patch':
+			fixFeature(data.config.vegetation_feature, ctx)
 	}
 }
 
