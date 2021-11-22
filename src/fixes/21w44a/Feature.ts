@@ -22,6 +22,9 @@ function fixFeature(data: any, ctx: FixContext) {
 			data.config.features.forEach((e: any) => fixFeature(e.feature, ctx))
 			fixFeature(data.config.default, ctx)
 			break
+		case 'simple_random_selector':
+			data.config.features.forEach((feature: any) => fixFeature(feature, ctx))
+			break
 		case 'flower':
 		case 'no_bonemeal_flower':
 		case 'random_patch':
@@ -53,21 +56,25 @@ function fixFeature(data: any, ctx: FixContext) {
 			const placer = data.config.block_placer.type.replace(/^minecraft:/, '')
 			const feature = placer === 'column_placer' ? {
 				type: 'minecraft:block_column',
-				direction: 'up',
-				allowed_placement: data.config.can_replace !== true ? {
-					type: 'minecraft:matching_blocks',
-					blocks: ['minecraft:air'],
-				} : { type: 'minecraft:true' },
-				prioritize_tip: false,
-				layers: [
-					{
-						height: data.config.block_placer.size,
-						provider: data.config.state_provider,
-					},
-				],
+				config: {
+					direction: 'up',
+					allowed_placement: data.config.can_replace !== true ? {
+						type: 'minecraft:matching_blocks',
+						blocks: ['minecraft:air'],
+					} : { type: 'minecraft:true' },
+					prioritize_tip: false,
+					layers: [
+						{
+							height: data.config.block_placer.size,
+							provider: data.config.state_provider,
+						},
+					],
+				},
 			} : {
 				type: 'minecraft:simple_block',
-				to_place: data.config.state_provider,
+				config: {
+					to_place: data.config.state_provider,
+				},
 			}
 			data.config = {
 				tries: data.config.tries,

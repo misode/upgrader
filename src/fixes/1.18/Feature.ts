@@ -149,7 +149,10 @@ function fromPlacedFeature(data: any) {
 
 function refPlacedFeature(data: { feature: unknown, placement: unknown[] }) {
 	if (typeof data.feature === 'string' && data.placement.length === 0) {
-		return data.feature
+		const id = data.feature.replace(/^minecraft:/, '')
+		if (!FeatureRemovals.has(id)) {
+			return data.feature
+		}
 	}
 	return data
 }
@@ -160,7 +163,6 @@ function fixDecorator(data: any, ctx: FixContext): any[] {
 	const type = data.type.replace(/^minecraft:/, '')
 	switch (type) {
 		case 'block_filter':
-			console.log('BLOCK FILTER', data)
 			return [{ type: 'minecraft:block_predicate_filter', ...data.config }]
 		case 'cave_surface':
 			const steps = data.config.floor_to_ceiling_search_range
