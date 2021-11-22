@@ -10,6 +10,7 @@
 
 	--download-2: #3a96ff;
 	--warning-2: #ffd255;
+	--warning-3: #fbd878;
 	--error-1: #792415;
 	--error-2: #c33f27;
 	--error-3: #eb6c55;
@@ -54,6 +55,10 @@ main {
 
 .drop .error-message {
 	color: var(--error-3);
+}
+
+.drop .warning-message {
+	color: var(--warning-3);
 }
 
 .configs {
@@ -107,6 +112,7 @@ main {
 	margin-left: 20px 
 }
 
+.warning-message,
 .error-message {
 	color: #fff;
 	font-weight: bold;

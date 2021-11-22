@@ -1,6 +1,6 @@
-import type { FixContext } from '../../Fix';
-import { Fix } from '../../Fix';
-import type { PackFile } from '../../Pack';
+import type { FixContext } from '../../Fix'
+import { Fix } from '../../Fix'
+import type { PackFile } from '../../Pack'
 
 export const Feature = Fix.all(
 	Fix.onFile('worldgen/configured_feature', fixRootFeature),
@@ -39,9 +39,9 @@ function fixFeatureId(str: string, ctx: FixContext) {
 		return ['minecraft:trees_meadow']
 	} else if (id === 'lake_lava') {
 		return ['minecraft:lake_lava_surface', 'minecraft:lake_lava_underground']
-	} else if (FeatureRenames.has(id)) {
-		return [`minecraft:${FeatureRenames.get(id)}`]
-	} else if (FeatureNoPlacement.has(id) && ctx.read('worldgen/placed_feature', id) === undefined) {
+	} else if (FeatureRenames.has(id) || FeatureRenamesPlacement.has(id)) {
+		return [`minecraft:${FeatureRenames.get(id) ?? FeatureRenamesPlacement.get(id)}`]
+	} else if (FeatureOnlyConfig.has(id) && ctx.read('worldgen/placed_feature', id) === undefined) {
 		return []
 	} else if (FeatureFullyRemoved.has(id)) {
 		return []
@@ -55,43 +55,50 @@ function fixRootFeature(file: PackFile, ctx: FixContext) {
 
 	const f = fixFeature(file.data, ctx)
 	if (typeof f.feature === 'string') {
-		const id = f.feature.replace(/^minecraft:/, '')
-		if (FeatureFullyRemoved.has(id) || FeatureOnlyPlacement.has(id)) {
-			file.data = {
-				type: 'minecraft:no_op',
-				config: {},
-			}
-		} else {
-			if (FeatureNoPlacement.has(id)) {
-				f.feature = {
-					feature: f.feature,
-					placement: [],
-				}
-			} else if (FeatureRenames.has(id)) {
-				f.feature = `minecraft:${FeatureRenames.get(id)}`
-			}
-			file.data = {
-				type: 'minecraft:random_selector',
-				config: {
-					features: [],
-					default: f.feature,
-				},
-			}
-		}
+		file.data = redirect(fixPlacedFeatureId(f.feature, ctx))
 	} else {
 		file.data = {
 			type: f?.feature.type,
 			config: f?.feature.config,
 		}
+		f.feature = file.name
 	}
 	ctx.create('worldgen/placed_feature', file.name, {
-		feature: typeof f.feature === 'string' ? f.feature : file.name,
+		feature: f.feature,
 		placement: f?.placement,
 	})
 }
 
+// Wraps a placed feature in a configured feature
+function redirect(placedFeature: unknown) {
+	return {
+		type: 'minecraft:random_selector',
+		config: {
+			features: [],
+			default: placedFeature,
+		},
+	}
+}
+
+/**
+ * Fixes a configured feature into a placed feature
+ */
 function fixFeature(data: any, ctx: FixContext) {
 	if (typeof data === 'string') {
+		const id = data.replace(/^minecraft:/, '')
+		if (FeatureFullyRemoved.has(id)) {
+			data = { type: 'minecraft:no_op', config: {} }
+		} else if (FeatureOnlyPlacement.has(id)) {
+			data = redirect(data)
+		} else if (FeatureRenames.has(id) || FeatureRenamesConfig.has(id)) {
+			const configuredFeature = FeatureRenamesConfig.get(id) ?? FeatureRenames.get(id)
+			console.log(`Rename ${id} -> configured: ${configuredFeature}`)
+			data = `minecraft:${configuredFeature}`
+		} else if (FeatureRenamesPlacement.has(id)) {
+			const placedFeature = FeatureRenamesPlacement.get(id)
+			console.log(`Redirect ${id} -> placed: ${placedFeature}`)
+			data = redirect(placedFeature)
+		}
 		return {
 			feature: data,
 			placement: [],
@@ -105,7 +112,7 @@ function fixFeature(data: any, ctx: FixContext) {
 	switch (type) {
 		case 'decorated':
 			const feature = collectDecorators(data, placement, ctx)
-			data = fixFeature(feature, ctx)?.feature
+			data = fixToConfiguredFeature(feature, ctx)
 			break
 		case 'glow_lichen':
 			data.config.can_be_placed_on = [...new Set(
@@ -131,8 +138,8 @@ function fixFeature(data: any, ctx: FixContext) {
 			data.config.spread_height = 4
 			break
 		case 'random_boolean_selector':
-			data.config.feature_false = refPlacedFeature(fixFeature(data.config.feature_false, ctx))
-			data.config.feature_true = refPlacedFeature(fixFeature(data.config.feature_true, ctx))
+			data.config.feature_false = fixToPlacedFeature(data.config.feature_false, ctx)
+			data.config.feature_true = fixToPlacedFeature(data.config.feature_true, ctx)
 			break
 		case 'root_system':
 			data.config.allowed_tree_position = { type: 'minecraft:true' }
@@ -140,17 +147,17 @@ function fixFeature(data: any, ctx: FixContext) {
 		case 'random_patch':
 		case 'flower':
 		case 'no_bonemeal_flower':
-			data.config.feature = refPlacedFeature(fixFeature(data.config.feature, ctx))
+			data.config.feature = fixToPlacedFeature(data.config.feature, ctx)
 			break
 		case 'random_selector':
 			data.config.features.forEach((e: any) => {
-				e.feature = refPlacedFeature(fixFeature(e.feature, ctx))
+				e.feature = fixToPlacedFeature(e.feature, ctx)
 			})
-			data.config.default = refPlacedFeature(fixFeature(data.config.default, ctx))
+			data.config.default = fixToPlacedFeature(data.config.default, ctx)
 			break
 		case 'simple_random_selector':
 			data.config.features = data.config.features.map((f: any) => {
-				return refPlacedFeature(fixFeature(f, ctx))
+				return fixToPlacedFeature(f, ctx)
 			})
 			break
 		case 'twisting_vines':
@@ -162,7 +169,7 @@ function fixFeature(data: any, ctx: FixContext) {
 			break
 		case 'vegetation_patch':
 		case 'waterlogged_vegetation_patch':
-			data.config.vegetation_feature = refPlacedFeature(fixFeature(data.config.vegetation_feature, ctx))
+			data.config.vegetation_feature = fixToPlacedFeature(data.config.vegetation_feature, ctx)
 	}
 	return {
 		feature: data,
@@ -170,20 +177,56 @@ function fixFeature(data: any, ctx: FixContext) {
 	}
 }
 
-function refPlacedFeature(data: { feature: unknown, placement: unknown[] }) {
-	if (typeof data.feature === 'string' && data.placement.length === 0) {
-		const id = data.feature.replace(/^minecraft:/, '')
-		const renamed = FeatureRenames.get(id)
-		if (renamed) {
-			return `minecraft:${renamed}`
-		}
-		if (!FeatureNoPlacement.has(id)) {
-			return data.feature
-		}
+/**
+ * Fixes a configured feature and then returns it as a reference to a placed feature
+ */
+function fixToPlacedFeature(data: any, ctx: FixContext) {
+	const f = fixFeature(data, ctx)
+	if (typeof f.feature === 'string' && f.placement.length === 0) {
+		return fixPlacedFeatureId(f.feature, ctx)
 	}
-	return data
+	return f
 }
 
+function fixPlacedFeatureId(feature: string, ctx: FixContext) {
+	const id = feature.replace(/^minecraft:/, '')
+	if (FeatureRenames.has(id) || FeatureRenamesPlacement.has(id)) {
+		const placedFeature = FeatureRenamesPlacement.get(id) ?? FeatureRenames.get(id)
+		console.log(`Rename placement: ${id} -> ${placedFeature}`)
+		return `minecraft:${placedFeature}`
+	}
+	if (!FeatureOnlyConfig.has(id) && ctx.read('worldgen/configured_feature', id) === undefined) {
+		console.log(`No placement: ${id}`)
+		return feature
+	}
+	return {
+		feature,
+		placement: [],
+	}
+}
+
+/**
+ * Fixes a configured feature and then returns it as a reference to a configured feature
+ */
+function fixToConfiguredFeature(data: any, ctx: FixContext) {
+	const f = fixFeature(data, ctx)
+	if (typeof f.feature === 'string' && f.placement.length === 0) {
+		const id = f.feature.replace(/^minecraft:/, '')
+		if (FeatureRenames.has(id) || FeatureRenamesConfig.has(id)) {
+			const configuredFeature = FeatureRenamesConfig.get(id) ?? FeatureRenames.get(id)
+			console.log(`Rename config: ${id} -> ${configuredFeature}`)
+			return `minecraft:${configuredFeature}`
+		}
+		if (FeatureOnlyPlacement.has(id)) {
+			return redirect(f.feature)
+		}
+	}
+	return f.feature
+}
+
+/**
+ * Converts a configured decorator to a list of placement modifiers
+ */
 function fixDecorator(data: any, ctx: FixContext): any[] {
 	if (typeof data !== 'object') return []
 
@@ -317,50 +360,60 @@ function primeFactors(n: number) {
 
 const FeatureFullyRemoved = new Set(['lake_water'])
 
-// Configured features in 21w44a that have no corresponding placed feature in 1.18-pre1
-const FeatureNoPlacement = new Set(['azalea_tree', 'birch_bees_005', 'bonus_chest', 'cave_vine_in_moss', 'clay_pool_with_dripleaves', 'clay_with_dripleaves', 'dripleaf', 'end_gateway_delayed', 'huge_brown_mushroom', 'huge_red_mushroom', 'jungle_tree_no_vine', 'moss_patch', 'moss_patch_bonemeal', 'moss_patch_ceiling', 'moss_vegetation', 'oak_bees_005', 'patch_brown_mushroom', 'patch_red_mushroom', 'spring_lava_double', 'swamp_oak'])
+// Configured features in 21w44a that have no corresponding placed feature in 1.18
+const FeatureOnlyConfig = new Set(['azalea_tree', 'birch_bees_005', 'bonus_chest', 'cave_vine_in_moss', 'clay_pool_with_dripleaves', 'clay_with_dripleaves', 'dripleaf', 'end_gateway_delayed', 'huge_brown_mushroom', 'huge_red_mushroom', 'jungle_tree_no_vine', 'moss_patch', 'moss_patch_bonemeal', 'moss_patch_ceiling', 'moss_vegetation', 'oak_bees_005', 'patch_brown_mushroom', 'patch_red_mushroom', 'spring_lava_double', 'swamp_oak'])
 
 // Configured features in 21w44a that have a corresponding placed feature, but their configured feature was removed.
 const FeatureOnlyPlacement = new Set(['patch_dead_bush_2'])
 
-// Configured features in 21w44a that got a new name as placed feature in 1.18-pre1
+// Configured features in 21w44a that got a new name as placed feature and configured feature in 1.18
 const FeatureRenames = new Map(Object.entries({
-	acacia: 'acacia_checked',
-	birch: 'bircha_checked',
 	birch_other: 'trees_birch_and_oak',
-	brown_mushroom_giant: 'brown_mushroom_old_growth',
-	cave_vine: 'cave_vines',
-	crimson_fungi_planted: 'crimson_fungus_planted',
-	dark_oak: 'dark_oak_checked',
 	end_gateway: 'end_gateway_return',
-	end_island: 'end_island_decorated',
-	fancy_oak: 'fancy_oak_checked',
 	fancy_oak_bees_005: 'fancy_oak_bees',
 	flower_forest: 'flower_flower_forest',
-	flower_plain_decorated: 'flower_plains',
 	forest_flower_trees: 'trees_flower_forest',
 	forest_flower_vegetation: 'forest_flowers',
 	grove_vegetation: 'trees_grove',
-	meadow_trees: 'trees_meadow',
-	mega_jungle_tree: 'mega_jungle_tree_checked',
-	mega_pine: 'mega_pine_checked',
-	mega_spruce: 'mega_spruce_checked',
 	mushroom_field_vegetation: 'mushroom_island_vegetation',
 	ore_debris_large: 'ore_ancient_debris_large',
-	patch_cactus: 'patch_cactus_decorated',
 	patch_waterlilly: 'patch_waterlily',
 	pine: 'pine_checked',
 	plain_vegetation: 'trees_plains',
-	red_mushroom_giant: 'red_mushroom_old_growth',
 	rooted_azalea_trees: 'rooted_azalea_tree',
-	spruce: 'spruce_checked',
 	taiga_vegetation: 'trees_taiga',
 	trees_giant: 'trees_old_growth_pine_taiga',
 	trees_giant_spruce: 'trees_old_growth_spruce_taiga',
 	trees_jungle_edge: 'trees_sparse_jungle',
 	trees_mountain: 'trees_windswept_hills',
+}))
+
+// Configured features in 21w44a that got a new name as placed feature in 1.18 but have no configured feature with this new name
+const FeatureRenamesPlacement = new Map(Object.entries({
+	acacia: 'acacia_checked',
+	birch: 'birch_checked',
+	brown_mushroom_giant: 'brown_mushroom_old_growth',
+	cave_vine: 'cave_vines',
+	dark_oak: 'dark_oak_checked',
+	end_island: 'end_island_decorated',
+	fancy_oak: 'fancy_oak_checked',
+	flower_plain_decorated: 'flower_plains',
+	meadow_trees: 'trees_meadow',
+	mega_jungle_tree: 'mega_jungle_tree_checked',
+	mega_pine: 'mega_pine_checked',
+	red_mushroom_giant: 'red_mushroom_old_growth',
+	patch_cactus: 'patch_cactus_decorated',
+	mega_spruce: 'mega_spruce_checked',
+	spruce: 'spruce_checked',
 	trees_mountain_edge: 'trees_windswept_forest',
 	trees_shattered_savanna: 'trees_windswept_savanna',
+}))
+
+// Configured features in 21w44a that got a new name as configured feature in 1.18 but have no placed feature with this new name
+const FeatureRenamesConfig = new Map(Object.entries({
+	mega_spruce: 'mega_spruce',
+	cave_vine: 'cave_vine', // entry is included because the placed feature was renamed
+	crimson_fungi_planted: 'crimson_fungus_planted',
 	warped_fungi_planted: 'warped_fungus_planted',
 }))
 

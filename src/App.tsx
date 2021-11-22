@@ -79,9 +79,9 @@ export function App() {
 			<h1>Drop data pack here</h1>
 			<p>Convert from <VersionPicker value={source} onChange={changeSource}/> to <VersionPicker value={target} onChange={changeTarget}/></p>
 			{!Version.order(source, target)
-				? <p class="error-message">Invalid versions</p>
-				: Version.includes(source, target, '1.17.1', '21w44a')
-					? <p class="error-message">This upgrade is still being worked on...</p>
+				? <p class="error-message">Invalid version range</p>
+				: Version.includes(source, target, '1.17.1', '1.18-pre6')
+					? <p class="warning-message">This upgrade is still being worked on</p>
 					: null}
 		</div>
 		<div class="configs">

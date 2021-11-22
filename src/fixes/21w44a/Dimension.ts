@@ -61,6 +61,8 @@ function fixNoiseSettings(data: any, ctx: FixContext, biomes: string[] = []) {
 	}
 	if (typeof data !== 'object') return
 
+	data.legacy_random_source = false
+
 	data.noise.top_slide.target /= 128
 	data.noise.bottom_slide.target /= 128
 	
