@@ -69,10 +69,14 @@ export function App() {
 		setErrors([...errors, { process: 'upgrading', error }])
 	}
 
+	const removePack = (id: string) => {
+		setPacks(packs => packs.filter(p => p.id !== id))
+	}
+
 	return <main onDrop={onDrop} onDragOver={e => e.preventDefault()}>
 		{packs.length > 0 && <>
 			<div class="packs">
-				{packs.map(pack => <PackCard {...{pack, config, source, target}} onError={onUpgradeError} />)}
+				{packs.map(pack => <PackCard key={pack.id} {...{pack, config, source, target}} onError={onUpgradeError} onRemove={() => removePack(pack.id)} />)}
 			</div>
 		</>}
 		<div class="drop">

@@ -21,8 +21,9 @@ type PackCardProps = {
 	source: Version,
 	target: Version,
 	onError: (error: Error) => unknown,
+	onRemove: () => unknown,
 }
-export function PackCard({ pack, config, source, target, onError }: PackCardProps) {
+export function PackCard({ pack, config, source, target, onError, onRemove }: PackCardProps) {
 	const [status, setStatus] = useState('Loading...')
 	const [download, setDownload] = useState<string | null>(null)
 	const [alerts, setAlerts] = useState<AlertData[]>([])
@@ -82,6 +83,9 @@ export function PackCard({ pack, config, source, target, onError }: PackCardProp
 				{Octicon.alert}
 			</div>}
 			<span class="pack-name">{pack.name.replace(/\.zip$/, '')}</span>
+			<div class="pack-status remove" onClick={onRemove}>
+				{Octicon.x}
+			</div>
 		</div>
 		{(prompt || (alerts.length > 0 && !alertsHidden)) && <div class="pack-body">
 			{prompt && <div class="pack-prompt">

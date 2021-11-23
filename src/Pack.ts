@@ -31,6 +31,7 @@ export type PackFile = {
 }
 
 export type Pack = {
+	id: string,
 	name: string,
 	zip: JSZip,
 	meta: PackFile,
@@ -44,7 +45,7 @@ export namespace Pack {
 		const buffer = await file.arrayBuffer()
 		const zip = await JSZip.loadAsync(buffer)
 
-		const pack: Pack = { name: file.name, zip, data: {} } as Pack
+		const pack: Pack = { id: hexId(), name: file.name, zip, data: {} } as Pack
 		await Promise.all(categories.map(async category => {
 			pack.data[category] = await loadCategory(zip, category)
 		}))
@@ -158,4 +159,12 @@ type UpgradeConfig = {
 	target: Version,
 	onPrompt: FixPrompt,
 	onWarning: (message: string, files?: string[]) => unknown,
+}
+
+const dec2hex = (dec: number) => ('0' + dec.toString(16)).substr(-2)
+
+export function hexId(length = 12) {
+	var arr = new Uint8Array(length / 2)
+	window.crypto.getRandomValues(arr)
+	return Array.from(arr, dec2hex).join('')
 }

@@ -180,7 +180,7 @@ main {
 	background-color: var(--dark-3);
 }
 
-.pack-status:hover::after {
+.pack-status[data-hover]:hover::after {
 	content: attr(data-hover);
 	position: absolute;
 	bottom: 100%;
@@ -238,6 +238,10 @@ main {
 @keyframes spinning {
 	from { transform: rotate(0deg);}
 	to { transform: rotate(360deg);}
+}
+
+.pack-status.remove {
+	margin-left: auto;
 }
 
 .pack-name {
