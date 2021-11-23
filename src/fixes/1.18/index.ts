@@ -11,6 +11,7 @@ export const Fixes18 = Fix.all(
 		),
 	)),
 	Fix.versionInclusive('1.18-pre6', '1.18-pre6',
+		Fix.debug('Checking feature order cycle'),
 		// CycleOrder
 	)
 )

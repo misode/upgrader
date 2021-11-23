@@ -10,11 +10,10 @@ type FeatureData = {
 export async function CycleOrder(pack: Pack, ctx: FixContext) {
 	const biomes = pack.data['worldgen/biome']
 	await new Promise(res => setTimeout(res, 500))
-	console.log('Checking feature cycle order:', biomes.map(f => f.name))
 
-	const comparator = (a: FeatureData, b: FeatureData) => {
-		return a.step - b.step || a.index - b.index
-	}
+	// const comparator = (a: FeatureData, b: FeatureData) => {
+	// 	return a.step - b.step || a.index - b.index
+	// }
 
 	const featureData: FeatureData[] = []
 
