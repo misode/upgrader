@@ -1,7 +1,7 @@
 import detectIndent from 'detect-indent'
 import JSZip from 'jszip'
 import stripJsonComments from 'strip-json-comments'
-import type { FixConfig, FixContext } from './Fix'
+import type { FixConfig, FixContext, FixPrompt } from './Fix'
 import { Fixes } from './fixes'
 import type { Version } from './Version'
 
@@ -129,11 +129,13 @@ export namespace Pack {
 		zip.file(path, data)
 	}
 
-	export async function upgrade(pack: Pack, config: FixConfig, source: Version, target: Version) {
-		const warnings: string[] = []
+	export async function upgrade(pack: Pack, config: UpgradeConfig) {
 		const ctx: FixContext = {
-			warn: (message: string) => warnings.push(message),
-			config: (key: keyof FixConfig) => config[key],
+			warn: config.onWarning,
+			prompt: config.onPrompt,
+			source: () => config.source,
+			target: () => config.target,
+			config: (key: keyof FixConfig) => config.features[key],
 			read: (category: string, name: string) => {
 				return pack.data[category].find(f =>
 					f.name.replace(/^minecraft:/, '') === name.replace(/^minecraft:/, ''))
@@ -145,10 +147,15 @@ export namespace Pack {
 					data,
 				})
 			},
-			source: () => source,
-			target: () => target,
 		}
-		Fixes(pack, ctx)
-		return { warnings }
+		await Fixes(pack, ctx)
 	}
+}
+
+type UpgradeConfig = {
+	features: FixConfig,
+	source: Version,
+	target: Version,
+	onPrompt: FixPrompt,
+	onWarning: (message: string, files?: string[]) => unknown,
 }

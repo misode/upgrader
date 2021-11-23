@@ -13,4 +13,8 @@ export namespace Version {
 	export function includes(source: Version, target: Version, from: Version, to: Version) {
 		return ord(source) < ord(to) && ord(target) > ord(from)
 	}
+
+	export function includesInclusive(source: Version, target: Version, from: Version, to: Version) {
+		return ord(source) <= ord(to) && ord(target) >= ord(from)
+	}
 }
