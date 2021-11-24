@@ -1,7 +1,7 @@
 import detectIndent from 'detect-indent'
 import JSZip from 'jszip'
 import stripJsonComments from 'strip-json-comments'
-import type { FixConfig, FixContext, FixPrompt } from './Fix'
+import type { FixConfig, FixContext } from './Fix'
 import { Fixes } from './fixes'
 import type { Version } from './Version'
 
@@ -99,9 +99,9 @@ export namespace Pack {
 
 	export async function toZip(pack: Pack) {
 		categories.forEach(category => {
-			writeCategory(pack.zip, category, pack.data[category])
+			writeCategory(pack.zip, category, pack.data[category] ?? [])
 		})
-		writeFunctions(pack.zip, pack.data.functions)
+		writeFunctions(pack.zip, pack.data.functions ?? [])
 		writeJson(pack.zip, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
 		const blob = await pack.zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
 		return URL.createObjectURL(blob)
@@ -157,7 +157,7 @@ type UpgradeConfig = {
 	features: FixConfig,
 	source: Version,
 	target: Version,
-	onPrompt: FixPrompt,
+	onPrompt: FixContext['prompt'],
 	onWarning: (message: string, files?: string[]) => unknown,
 }
 
@@ -167,4 +167,33 @@ export function hexId(length = 12) {
 	var arr = new Uint8Array(length / 2)
 	window.crypto.getRandomValues(arr)
 	return Array.from(arr, dec2hex).join('')
+}
+
+export function MockPack(): Pack {
+	const id = hexId()
+	return {
+		id,
+		name: `Pack${id}`,
+		zip: new JSZip(),
+		meta: {
+			name: 'pack.mcmeta',
+			data: { pack: { pack_format: 8, description: '' } },
+		},
+		data: {
+			'worldgen/biome': [
+				{
+					name: 'test:plains',
+					data: { features: [ ['yellow', 'red'] ] },
+				},
+				{
+					name: 'test:desert',
+					data: { features: [ ['black', 'red', 'yellow'] ] },
+				},
+				{
+					name: 'test:jungle',
+					data: { features: [ ['green', 'yellow', 'red'] ] },
+				},
+			],
+		},
+	}
 }

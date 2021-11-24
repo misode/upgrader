@@ -106,8 +106,6 @@ export type FixConfig = {
 	packFormat: boolean,
 }
 
-export type FixPrompt = (title: string, prompt?: string, actions?: string[]) => Promise<string>
-
 export interface FixContext {
 	warn: (message: string, files?: string[]) => unknown
 	config: (key: keyof FixConfig) => boolean
@@ -115,5 +113,5 @@ export interface FixContext {
 	create: (category: string, name: string, data: any) => unknown,
 	source: () => Version,
 	target: () => Version,
-	prompt: FixPrompt,
+	prompt: (title: string, prompt?: string, actions?: string[], info?: string[]) => Promise<string>,
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
-import type { FixConfig, FixPrompt } from '../Fix'
+import type { FixConfig } from '../Fix'
 import { Pack } from '../Pack'
 import type { Version } from '../Version'
 import { Octicon } from './Octicon'
@@ -13,6 +13,7 @@ type PromptData = {
 	title: string,
 	message?: string,
 	actions: string[],
+	info?: string[],
 }
 
 type PackCardProps = {
@@ -34,9 +35,9 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 
 	const downloadName = pack.name.replace(/\.zip$/, `_${target}.zip`)
 
-	const onPrompt: FixPrompt = (title, message, actions) => {
-		setPrompt({ title, message, actions: actions ?? ['Confirm'] })
-		return new Promise((res) => {
+	const onPrompt = (title: string, message?: string, actions?: string[], info?: string[]) => {
+		setPrompt({ title, message, actions: actions ?? ['Confirm'], info })
+		return new Promise<string>((res) => {
 			promptDone.current = (value) => {
 				setPrompt(null)
 				res(value)
@@ -53,7 +54,6 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 			try {
 				setStatus('Upgrading...')
 				await Pack.upgrade(pack, { features: config, source, target, onPrompt, onWarning })
-
 				setStatus('Zipping...')
 				const download = await Pack.toZip(pack)
 				setDownload(download)
@@ -96,6 +96,7 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 						<button onClick={() => promptDone.current(action)}>{action}</button>
 					))}
 				</p>
+				{prompt.info?.map(line => <p class="prompt-info">{line}</p>)}
 			</div>}
 			{(alerts.length > 0 && !alertsHidden) && alerts.map(({ message, files }) => <div class="pack-alert">
 				<div class="alert-message">{message}</div>

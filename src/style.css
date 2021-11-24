@@ -288,14 +288,17 @@ main {
 	border-left: 2px solid var(--primary-2);
 }
 
-.prompt-title {
-	color: var(--primary-2);
-	font-size: 1.1rem;
+.pack-prompt > *:not(:last-child) {
 	margin-bottom: 5px;
 }
 
-.prompt-message {
-	margin-bottom: 5px;
+.prompt-title {
+	color: var(--primary-2);
+	font-size: 1.1rem;
+}
+
+.prompt-info {
+	color: #bbb;
 }
 
 .pack-prompt button {
