@@ -183,11 +183,11 @@ export function MockPack(): Pack {
 			'worldgen/biome': [
 				{
 					name: 'test:plains',
-					data: { features: [ ['yellow', 'red'] ] },
+					data: { features: [ ['red'] ] },
 				},
 				{
 					name: 'test:desert',
-					data: { features: [ ['black', 'red', 'yellow'] ] },
+					data: { features: [ ['black', 'red', 'yellow', 'green'] ] },
 				},
 				{
 					name: 'test:jungle',

@@ -1,6 +1,6 @@
-import type { FixContext } from '../../Fix';
-import { Fix } from '../../Fix';
-import type { PackFile } from '../../Pack';
+import type { FixContext } from '../../Fix'
+import { Fix } from '../../Fix'
+import type { PackFile } from '../../Pack'
 
 export const Feature = Fix.all(
 	Fix.onFile('worldgen/configured_feature', fixRootFeature),

@@ -104,10 +104,11 @@ export type FixConfig = {
 	predicates: boolean,
 	worldgen: boolean,
 	packFormat: boolean,
+	featureCycles: boolean,
 }
 
 export interface FixContext {
-	warn: (message: string, files?: string[]) => unknown
+	warn: (message: string, files?: string[], info?: string[]) => unknown
 	config: (key: keyof FixConfig) => boolean
 	read: (category: string, name: string) => PackFile | undefined,
 	create: (category: string, name: string, data: any) => unknown,

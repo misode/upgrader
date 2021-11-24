@@ -1,6 +1,6 @@
 import { Fix } from '../../Fix'
-// import { CycleOrder } from './CycleOrder'
 import { Feature } from './Feature'
+import { CycleOrder } from './FeatureCycles'
 import { NoiseSettings } from './NoiseSettings'
 
 export const Fixes18 = Fix.all(
@@ -13,6 +13,6 @@ export const Fixes18 = Fix.all(
 	)),
 	Fix.versionInclusive('1.18-pre6', '1.18-pre6',
 		Fix.debug('Checking feature order cycle'),
-		// CycleOrder
+		CycleOrder
 	)
 )

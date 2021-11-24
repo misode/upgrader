@@ -24,6 +24,7 @@ export function App() {
 		predicates: true,
 		worldgen: true,
 		packFormat: true,
+		featureCycles: true,
 	})
 	const changeSource = (source: Version) => {
 		Store.setSource(source)
@@ -96,6 +97,7 @@ export function App() {
 			<Config name="Upgrade JSON files" value={config.predicates} onChange={v => setConfig({ ...config, predicates: v })} />
 			<Config name="Upgrade worldgen" value={config.worldgen} onChange={v => setConfig({ ...config, worldgen: v })} />
 			<Config name="Upgrade pack_format" value={config.packFormat} onChange={v => setConfig({ ...config, packFormat: v })} />
+			<Config name="Detect feature cycles" value={config.featureCycles} onChange={v => setConfig({ ...config, featureCycles: v })} />
 		</div>
 		<div class="footer">
 			<p>Developed by Misode</p>

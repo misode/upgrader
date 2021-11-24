@@ -273,6 +273,14 @@ main {
 	margin-right: 20px;
 }
 
+.alert-info {
+	color: #ccc;
+}
+
+.alert-error {
+	color: var(--error-2);
+}
+
 .version-picker {
 	background-color: var(--dark-2);
 	color: #eee;
@@ -298,7 +306,7 @@ main {
 }
 
 .prompt-info {
-	color: #bbb;
+	color: #ccc;
 }
 
 .pack-prompt button {

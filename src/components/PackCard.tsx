@@ -7,6 +7,7 @@ import { Octicon } from './Octicon'
 type AlertData = {
 	message: string,
 	files?: string[],
+	info?: string[],
 }
 
 type PromptData = {
@@ -45,8 +46,8 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 		})
 	}
 
-	const onWarning = (message: string, files?: string[]) => {
-		setTimeout(() => setAlerts(alerts => [...alerts, { message, files}]))
+	const onWarning = (message: string, files?: string[], info?: string[]) => {
+		setTimeout(() => setAlerts(alerts => [...alerts, { message, files, info }]))
 	}
 
 	useEffect(() => {
@@ -98,12 +99,13 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 				</p>
 				{prompt.info?.map(line => <p class="prompt-info">{line}</p>)}
 			</div>}
-			{(alerts.length > 0 && !alertsHidden) && alerts.map(({ message, files }) => <div class="pack-alert">
-				<div class="alert-message">{message}</div>
+			{(alerts.length > 0 && !alertsHidden) && alerts.map(({ message, files, info }) => <div class="pack-alert">
+				<div class={`alert-message ${message.startsWith('!') ? 'alert-error' : ''}`}>{message.replace(/\!/, '')}</div>
 				{files && files.length > 0 && <>
 					<p>Affected files:</p>
 					<div class="alert-files">{files.map(file => <p>{file}</p>)}</div>
 				</>}
+				{info?.map(line => <p class="alert-info">{line}</p>)}
 			</div>)}
 		</div>}
 	</div>

@@ -19,6 +19,10 @@ function fixBiome({ data }: PackFile, ctx: FixContext) {
 	}
 	data.starts = undefined
 
+	if (Array.isArray(data.features) && data.features.length >= 9) {
+		(data.features as any[]).splice(8, 0, [])
+	}
+
 	// Particle fix (should've been in 1.16 -> 1.17)
 	const particle = data.effects.particle?.options
 	if (particle?.type?.replace(/minecraft:/, '') === 'dust' && particle.r) {
