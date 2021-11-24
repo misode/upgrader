@@ -61,7 +61,7 @@ export function App() {
 					return
 				}
 			}))
-			setPacks([...packs, ...newPacks.filter((p): p is Pack => p !== undefined)])
+			setPacks([...packs, ...newPacks.flat().filter((p): p is Pack => p !== undefined)])
 		}
 	}
 

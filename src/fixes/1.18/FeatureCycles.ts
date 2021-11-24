@@ -84,12 +84,14 @@ export async function CycleOrder(pack: Pack, ctx: FixContext) {
 					const nextNode = cycle[(i + 1 + cycle.length) % cycle.length]
 					info.push(`• Biome ${node.biome}: '${nextNode.id}' -> '${node.id}'`)
 				}
-				ctx.warn('!Feature order cycle found. Needs manual fixing.', undefined, info)
+				ctx.warn('!Feature order cycle found. Needs manual fixing.', [], info)
 			}
 		}
 	}
 
-	ctx.warn('Removed duplicate features. They are no longer allowed.', [...biomesWithDuplicates])
+	if (biomesWithDuplicates.size > 0) {
+		ctx.warn('!Detected duplicate features. They are no longer allowed.', [...biomesWithDuplicates])
+	}
 }
 
 // Code to check if features are in different steps

@@ -1,4 +1,5 @@
 import detectIndent from 'detect-indent'
+import type { JSZipObject } from 'jszip'
 import JSZip from 'jszip'
 import stripJsonComments from 'strip-json-comments'
 import type { FixConfig, FixContext } from './Fix'
@@ -33,7 +34,7 @@ export type PackFile = {
 export type Pack = {
 	id: string,
 	name: string,
-	zip: JSZip,
+	root: JSZip,
 	meta: PackFile,
 	data: {
 		[category: string]: PackFile[],
@@ -41,83 +42,104 @@ export type Pack = {
 }
 
 export namespace Pack {
-	export async function fromZip(file: File): Promise<Pack> {
+	export async function fromZip(file: File): Promise<Pack[]> {
 		const buffer = await file.arrayBuffer()
 		const zip = await JSZip.loadAsync(buffer)
 
-		const pack: Pack = { id: hexId(), name: file.name, zip, data: {} } as Pack
-		await Promise.all(categories.map(async category => {
-			pack.data[category] = await loadCategory(zip, category)
+		const metaFiles = zip.filter(path => path.endsWith('pack.mcmeta'))
+		if (metaFiles.length === 0) {
+			throw new Error('Cannot find any "pack.mcmeta" files.')
+		}
+		return Promise.all(metaFiles.map(metaFile => {
+			const rootPath = metaFile.name.replace(/\/pack.mcmeta$/, '')
+			const name = rootPath.length === 0 ? file.name : rootPath.split('/').pop()!
+			return loadPack(name, zip.folder(rootPath)!)
 		}))
-		pack.data.functions = await loadFunctions(zip)
-		pack.meta = { name: 'pack', ...await loadJson(zip, 'pack.mcmeta') }
+	}
+
+	async function loadPack(name: string, root: JSZip): Promise<Pack> {
+		const pack: Pack = {
+			id: hexId(),
+			name: name,
+			root,
+			data: {},
+			meta: {
+				name: 'pack',
+				...await loadJson(root.file('pack.mcmeta')!),
+			},
+		}
+		await Promise.all(categories.map(async category => {
+			pack.data[category] = await loadCategory(root.folder('data')!, category)
+		}))
+		pack.data.functions = await loadFunctions(root.folder('data')!)
 		console.log(pack)
 		return pack
 	}
 
-	async function loadCategory(zip: JSZip, category: string): Promise<PackFile[]> {
-		const matcher = new RegExp(`^data\/([^\/]+)\/${category}\/(.*)\.json$`)
-		return Promise.all(Object.keys(zip.files)
-			.map(f => f.match(matcher)).filter(m => m)
-			.map(async m => ({
-				name: `${m![1]}:${m![2]}`,
-				...await loadJson(zip, m![0]),
-			}))
+	async function loadCategory(root: JSZip, category: string): Promise<PackFile[]> {
+		const matcher = new RegExp(`([^\/]+)\/${category}\/(.*)\.json$`)
+		return Promise.all(root.filter((path) => path.match(matcher) !== null)
+			.map(async file => {
+				const m = file.name.match(matcher)
+				return {
+					name: `${m![1]}:${m![2]}`,
+					...await loadJson(file),
+				}
+			})
 		)
 	}
 
-	async function loadJson(zip: JSZip, path: string) {
-		let text = await loadText(zip, path)
+	async function loadJson(file: JSZipObject) {
+		let text = await loadText(file)
 		const indent = detectIndent(text).indent
 		try {
 			text = text.replaceAll('\u200B', '').replaceAll('\u200C', '').replaceAll('\u200D', '').replaceAll('\uFEFF', '')
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
 			return { data: JSON.parse(stripJsonComments(text)), indent }
 		} catch (e: any) {
-			throw new Error(`Cannot parse "${path}": ${e.message}.`)
+			console.log(text)
+			throw new Error(`Cannot parse file: ${e.message}.`)
 		}
 	}
 
-	async function loadFunctions(zip: JSZip): Promise<PackFile[]> {
-		const matcher = /^data\/([^\/]+)\/functions\/(.*)\.mcfunction$/
-		return Promise.all(Object.keys(zip.files)
-			.map(f => f.match(matcher)).filter(m => m)
-			.map(async m => ({
-				name: `${m![1]}:${m![2]}`,
-				data: (await loadText(zip, m![0])).split('\n'),
-			}))
+	async function loadFunctions(root: JSZip): Promise<PackFile[]> {
+		const matcher = /([^\/]+)\/functions\/(.*)\.mcfunction$/
+		return Promise.all(root.filter((path) => path.match(matcher) !== null)
+			.map(async file => {
+				const m = file.name.match(matcher)
+				return {
+					name: `${m![1]}:${m![2]}`,
+					data: (await loadText(file)).split('\n'),
+				}
+			})
 		)
 	}
 
-	async function loadText(zip: JSZip, path: string) {
-		const file = zip.files[path]
-		if (!file) {
-			throw new Error(`Cannot find "${path}".`)
-		}
+	async function loadText(file: JSZipObject) {
 		return await file.async('text')
 	}
 
 	export async function toZip(pack: Pack) {
 		categories.forEach(category => {
-			writeCategory(pack.zip, category, pack.data[category] ?? [])
+			writeCategory(pack.root.folder('data')!, category, pack.data[category] ?? [])
 		})
-		writeFunctions(pack.zip, pack.data.functions ?? [])
-		writeJson(pack.zip, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
-		const blob = await pack.zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
+		writeFunctions(pack.root.folder('data')!, pack.data.functions ?? [])
+		writeJson(pack.root, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
+		const blob = await pack.root.generateAsync({ type: 'blob', compression: 'DEFLATE' })
 		return URL.createObjectURL(blob)
 	}
 
-	function writeCategory(zip: JSZip, category: string, data: PackFile[]) {
+	function writeCategory(root: JSZip, category: string, data: PackFile[]) {
 		data.forEach(({ name, data, indent }) => {
 			const [namespace, path] = name.split(':')
-			writeJson(zip, `data/${namespace}/${category}/${path}.json`, data, indent)
+			writeJson(root, `${namespace}/${category}/${path}.json`, data, indent)
 		})
 	}
 
-	function writeFunctions(zip: JSZip, functions: PackFile[]) {
+	function writeFunctions(root: JSZip, functions: PackFile[]) {
 		functions.forEach(({ name, data }) => {
 			const [namespace, path] = name.split(':')
-			writeText(zip, `data/${namespace}/functions/${path}.mcfunction`, data.join('\n'))
+			writeText(root, `${namespace}/functions/${path}.mcfunction`, data.join('\n'))
 		})
 	}
 
@@ -174,7 +196,7 @@ export function MockPack(): Pack {
 	return {
 		id,
 		name: `Pack${id}`,
-		zip: new JSZip(),
+		root: new JSZip(),
 		meta: {
 			name: 'pack.mcmeta',
 			data: { pack: { pack_format: 8, description: '' } },
