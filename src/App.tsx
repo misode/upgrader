@@ -74,8 +74,6 @@ export function App() {
 		setPacks(packs => packs.filter(p => p.id !== id))
 	}
 
-	// useEffect(() => setPacks([MockPack()]), [])
-
 	return <main onDrop={onDrop} onDragOver={e => e.preventDefault()}>
 		{packs.length > 0 && <>
 			<div class="packs">
@@ -87,9 +85,7 @@ export function App() {
 			<p>Convert from <VersionPicker value={source} onChange={changeSource}/> to <VersionPicker value={target} onChange={changeTarget}/></p>
 			{Version.order(target, source)
 				? <p class="error-message">Invalid version range</p>
-				: Version.includes(source, target, '1.17.1', '1.18-pre6')
-					? <p class="warning-message">This upgrade is still being worked on</p>
-					: null}
+				: null}
 		</div>
 		<div class="configs">
 			<Config name="Upgrade functions" value={config.functions} onChange={v => setConfig({ ...config, functions: v })} />
