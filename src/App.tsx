@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useState } from 'preact/hooks'
 import { Config } from './components/Config'
 import { Octicon } from './components/Octicon'
 import { PackCard } from './components/PackCard'
 import { VersionPicker } from './components/VersionPicker'
 import type { FixConfig } from './Fix'
-import { MockPack, Pack } from './Pack'
+import { Pack } from './Pack'
 import { Store } from './Store'
 import { Version } from './Version'
 
@@ -73,7 +73,7 @@ export function App() {
 		setPacks(packs => packs.filter(p => p.id !== id))
 	}
 
-	useEffect(() => setPacks([MockPack()]), [])
+	// useEffect(() => setPacks([MockPack()]), [])
 
 	return <main onDrop={onDrop} onDragOver={e => e.preventDefault()}>
 		{packs.length > 0 && <>

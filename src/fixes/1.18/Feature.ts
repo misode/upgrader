@@ -1,6 +1,6 @@
-import type { FixContext } from '../../Fix'
-import { Fix } from '../../Fix'
-import type { PackFile } from '../../Pack'
+import type { FixContext } from '../../Fix';
+import { Fix } from '../../Fix';
+import type { PackFile } from '../../Pack';
 
 export const Feature = Fix.all(
 	Fix.onFile('worldgen/configured_feature', fixRootFeature),
@@ -35,10 +35,8 @@ export const Feature = Fix.all(
 
 function fixFeatureId(str: string, ctx: FixContext) {
 	const id = str.replace(/^minecraft:/, '')
-	if (id === 'meadow_trees') {
-		return ['minecraft:trees_meadow']
-	} else if (id === 'lake_lava') {
-		return ['minecraft:lake_lava_surface', 'minecraft:lake_lava_underground']
+	if (FeatureReplacements.has(id)) {
+		return FeatureReplacements.get(id)!.map(e => `minecraft:${e}`)
 	} else if (FeatureRenames.has(id) || FeatureRenamesPlacement.has(id)) {
 		return [`minecraft:${FeatureRenames.get(id) ?? FeatureRenamesPlacement.get(id)}`]
 	} else if (FeatureOnlyConfig.has(id) && ctx.read('worldgen/placed_feature', id) === undefined) {
@@ -269,11 +267,20 @@ function fixDecorator(data: any, ctx: FixContext): any[] {
 				}
 
 				for (let n = 2; n <= 5; n += 1) {
-					const counts = []
-					for (let i = 0; i < n; i += 1) {
-						counts.push(factors.filter((_, j) => j % n === i).reduce((a, b) => a * b))
+					const counts: number[] = Array(n).fill(1)
+					const factorsToUse = [...factors]
+					outer:
+					while (factorsToUse.length > 0) {
+						const f = factorsToUse.pop()
+						for (let i = 0; i < n; i += 1) {
+							if (counts[i] * f <= 256) {
+								counts[i] *= f
+								continue outer
+							}
+						}
+						break
 					}
-					if (counts.every(p => p <= 256)) {
+					if (factorsToUse.length === 0 && counts.every(p => p <= 256)) {
 						return counts.map(count => ({ type: 'minecraft:count', count }))
 					}
 				}
@@ -358,15 +365,33 @@ function primeFactors(n: number) {
 	return factors
 }
 
-const FeatureFullyRemoved = new Set(['lake_water'])
+// Configured features in 1.17 that were replaced with multiple placed features
+const FeatureReplacements = new Map(Object.entries({
+	birch_other: ['forest_flowers', 'trees_birch_and_oak'],
+	fossil: ['fossil_upper', 'fossil_lower'],
+	lake_lava: ['lake_lava_surface', 'lake_lava_underground'],
+	monster_room: ['monster_room', 'monster_room_deep'],
+	ore_granite: ['ore_granite_upper', 'ore_granite_lower'],
+	ore_diorite: ['ore_diorite_upper', 'ore_diorite_lower'],
+	ore_andesite: ['ore_andesite_upper', 'ore_andesite_lower'],
+	ore_coal: ['ore_coal_upper', 'ore_coal_lower'],
+	ore_iron: ['ore_iron_upper', 'ore_iron_middle', 'ore_iron_small'],
+	ore_gold: ['ore_gold', 'ore_gold_lower'],
+	ore_redstone: ['ore_redstone', 'ore_redstone_lower'],
+	ore_diamond: ['ore_diamond', 'ore_diamond_large', 'ore_diamond_buried'],
+	ore_lapis: ['ore_lapis', 'ore_lapis_buried'],
+}))
 
-// Configured features in 21w44a that have no corresponding placed feature in 1.18
+// Configured features in 1.17 that were fully removed
+const FeatureFullyRemoved = new Set(['lake_water', 'rare_dripstone_cluster', 'rare_small_dripstone', 'ore_deepslate'])
+
+// Configured features in 1.17 that have no corresponding placed feature in 1.18
 const FeatureOnlyConfig = new Set(['azalea_tree', 'birch_bees_005', 'bonus_chest', 'cave_vine_in_moss', 'clay_pool_with_dripleaves', 'clay_with_dripleaves', 'dripleaf', 'end_gateway_delayed', 'huge_brown_mushroom', 'huge_red_mushroom', 'jungle_tree_no_vine', 'moss_patch', 'moss_patch_bonemeal', 'moss_patch_ceiling', 'moss_vegetation', 'oak_bees_005', 'patch_brown_mushroom', 'patch_red_mushroom', 'spring_lava_double', 'swamp_oak'])
 
-// Configured features in 21w44a that have a corresponding placed feature, but their configured feature was removed.
+// Configured features in 1.17 that have a corresponding placed feature, but their configured feature was removed.
 const FeatureOnlyPlacement = new Set(['patch_dead_bush_2'])
 
-// Configured features in 21w44a that got a new name as placed feature and configured feature in 1.18
+// Configured features in 1.17 that got a new name as placed feature and configured feature in 1.18
 const FeatureRenames = new Map(Object.entries({
 	birch_other: 'trees_birch_and_oak',
 	end_gateway: 'end_gateway_return',
@@ -374,6 +399,7 @@ const FeatureRenames = new Map(Object.entries({
 	flower_forest: 'flower_flower_forest',
 	forest_flower_trees: 'trees_flower_forest',
 	forest_flower_vegetation: 'forest_flowers',
+	forest_flower_vegetation_common: 'flower_forest_flowers',
 	grove_vegetation: 'trees_grove',
 	mushroom_field_vegetation: 'mushroom_island_vegetation',
 	ore_debris_large: 'ore_ancient_debris_large',
@@ -388,7 +414,7 @@ const FeatureRenames = new Map(Object.entries({
 	trees_mountain: 'trees_windswept_hills',
 }))
 
-// Configured features in 21w44a that got a new name as placed feature in 1.18 but have no configured feature with this new name
+// Configured features in 1.17 that got a new name as placed feature in 1.18 but have no configured feature with this new name
 const FeatureRenamesPlacement = new Map(Object.entries({
 	acacia: 'acacia_checked',
 	birch: 'birch_checked',
@@ -409,7 +435,7 @@ const FeatureRenamesPlacement = new Map(Object.entries({
 	trees_shattered_savanna: 'trees_windswept_savanna',
 }))
 
-// Configured features in 21w44a that got a new name as configured feature in 1.18 but have no placed feature with this new name
+// Configured features in 1.17 that got a new name as configured feature in 1.18 but have no placed feature with this new name
 const FeatureRenamesConfig = new Map(Object.entries({
 	mega_spruce: 'mega_spruce',
 	cave_vine: 'cave_vine', // entry is included because the placed feature was renamed

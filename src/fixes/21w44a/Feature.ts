@@ -123,7 +123,7 @@ function fixFeature(data: any, ctx: FixContext) {
 							type: 'minecraft:weighted_list',
 							distribution: data.config.height_distribution.map((e: any) => ({
 								weight: e.weight,
-								data: deltaIntProvider(e.data, -1),
+								data: deltaIntProvider(e.data, -1, 0, Infinity),
 							})),
 						},
 						provider: data.config.body_provider,
@@ -239,7 +239,7 @@ function fixFeature(data: any, ctx: FixContext) {
 	}
 }
 
-function deltaIntProvider(data: any, delta: number): any {
+function deltaIntProvider(data: any, delta: number, min: number, max: number): any {
 	if (typeof data === 'number') return data + delta
 
 	const type = data.type.replace(/^minecraft:/, '')
@@ -247,24 +247,24 @@ function deltaIntProvider(data: any, delta: number): any {
 		case 'constant':
 			return {
 				type: data.type,
-				value: data.value + delta,
+				value: Math.max(min, Math.min(max, data.value + delta)),
 			}
 		case 'uniform':
 		case 'biased_to_bottom':
 			return {
 				type: data.type,
 				value: {
-					min_inclusive: data.min_inclusive + delta,
-					max_inclusive: data.max_inclusive + delta,
+					min_inclusive: Math.max(min, Math.min(max, data.value.min_inclusive + delta)),
+					max_inclusive: Math.max(min, Math.min(max, data.value.max_inclusive + delta)),
 				},
 			}
 		case 'clamped':
 			return {
 				type: data.type,
 				value: {
-					min_inclusive: data.min_inclusive + delta,
-					max_inclusive: data.max_inclusive + delta,
-					source: deltaIntProvider(data.source, delta),
+					min_inclusive: Math.max(min, Math.min(max, data.value.min_inclusive + delta)),
+					max_inclusive: Math.max(min, Math.min(max, data.value.max_inclusive + delta)),
+					source: deltaIntProvider(data.value.source, delta, min, max),
 				},
 			}
 	}

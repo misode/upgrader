@@ -18,4 +18,14 @@ function fixBiome({ data }: PackFile, ctx: FixContext) {
 		ctx.warn('Biome "starts" was removed, custom structures are not supported in 1.18.')
 	}
 	data.starts = undefined
+
+	// Particle fix (should've been in 1.16 -> 1.17)
+	const particle = data.effects.particle?.options
+	if (particle?.type?.replace(/minecraft:/, '') === 'dust' && particle.r) {
+		data.effects.particle.options = {
+			type: 'minecraft:dust',
+			color: [particle.r, particle.g, particle.b],
+			scale: particle.scale,
+		}
+	}
 }

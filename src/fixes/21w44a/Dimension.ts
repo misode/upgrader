@@ -23,7 +23,7 @@ function fixBiomeSource(data: any, ctx: FixContext) {
 			return [...new Set<string>(data.biomes)]
 		case 'multi_noise':
 			data.seed = undefined
-			if (data.preset.replace(/^minecraft:/, '') === 'nether') {
+			if (data.preset?.replace(/^minecraft:/, '') === 'nether') {
 				return ['nether_wastes', 'soul_sand_valley', 'crimson_forest', 'warped_forest', 'basalt_deltas']
 			}
 			data.altitude_noise = undefined
@@ -71,8 +71,8 @@ function fixNoiseSettings(data: any, ctx: FixContext, biomes: string[] = []) {
 	data.noise.random_density_offset = undefined
 
 	data.noise.terrain_shaper = {
-		offset: data.noise.density_offset,
-		factor: data.noise.density_factor,
+		offset: 0,
+		factor: 0,
 		jaggedness: 0,
 	}
 
