@@ -31,10 +31,13 @@ export type PackFile = {
 	indent?: string,
 }
 
+export type PackStatus = 'loaded' | 'upgrading' | 'upgraded' | 'writing' | 'done' | 'error'
+
 export type Pack = {
 	id: string,
 	name: string,
 	root: JSZip,
+	status: PackStatus,
 	meta: PackFile,
 	data: {
 		[category: string]: PackFile[],
@@ -51,8 +54,9 @@ export namespace Pack {
 			throw new Error('Cannot find any "pack.mcmeta" files.')
 		}
 		return Promise.all(metaFiles.map(metaFile => {
-			const rootPath = metaFile.name.replace(/\/pack.mcmeta$/, '')
+			const rootPath = metaFile.name.replace(/\/?pack.mcmeta$/, '')
 			const name = rootPath.length === 0 ? file.name : rootPath.split('/').pop()!
+			console.log(metaFile, rootPath, name)
 			return loadPack(name, zip.folder(rootPath)!)
 		}))
 	}
@@ -62,6 +66,7 @@ export namespace Pack {
 			id: hexId(),
 			name: name,
 			root,
+			status: 'loaded',
 			data: {},
 			meta: {
 				name: 'pack',
@@ -120,13 +125,18 @@ export namespace Pack {
 	}
 
 	export async function toZip(pack: Pack) {
+		if (pack.status !== 'upgraded') {
+			throw new Error(`Cannot download pack with status ${pack.status}.`)
+		}
 		categories.forEach(category => {
 			writeCategory(pack.root.folder('data')!, category, pack.data[category] ?? [])
 		})
 		writeFunctions(pack.root.folder('data')!, pack.data.functions ?? [])
 		writeJson(pack.root, 'pack.mcmeta', pack.meta.data, pack.meta.indent)
 		const blob = await pack.root.generateAsync({ type: 'blob', compression: 'DEFLATE' })
-		return URL.createObjectURL(blob)
+		const url = URL.createObjectURL(blob)
+		pack.status = 'done'
+		return url
 	}
 
 	function writeCategory(root: JSZip, category: string, data: PackFile[]) {
@@ -153,6 +163,9 @@ export namespace Pack {
 	}
 
 	export async function upgrade(pack: Pack, config: UpgradeConfig) {
+		if (pack.status !== 'loaded') {
+			throw new Error(`Cannot upgrade pack with status '${pack.status}'.`)
+		}
 		const ctx: FixContext = {
 			warn: config.onWarning,
 			prompt: config.onPrompt,
@@ -172,6 +185,7 @@ export namespace Pack {
 			},
 		}
 		await Fixes(pack, ctx)
+		pack.status = 'upgraded'
 	}
 }
 
@@ -197,6 +211,7 @@ export function MockPack(): Pack {
 		id,
 		name: `Pack${id}`,
 		root: new JSZip(),
+		status: 'loaded',
 		meta: {
 			name: 'pack.mcmeta',
 			data: { pack: { pack_format: 8, description: '' } },

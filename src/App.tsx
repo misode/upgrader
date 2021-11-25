@@ -74,10 +74,17 @@ export function App() {
 		setPacks(packs => packs.filter(p => p.id !== id))
 	}
 
+	const [doDownload, setDownload] = useState(0)
+
 	return <main onDrop={onDrop} onDragOver={e => e.preventDefault()}>
 		{packs.length > 0 && <>
 			<div class="packs">
-				{packs.map(pack => <PackCard key={pack.id} {...{pack, config, source, target}} onError={onUpgradeError} onRemove={() => removePack(pack.id)} />)}
+				{packs.map(pack => <PackCard key={pack.id} {...{pack, config, source, target, doDownload}} onError={onUpgradeError} onRemove={() => removePack(pack.id)} onDone={() => setPacks([...packs])} />)}
+				{packs.filter(p => p.status === 'done').length > 1 &&
+					<button class="download-all" onClick={() => setDownload(doDownload + 1)}>
+						{Octicon.download}
+						<span>Download all</span>
+					</button>}
 			</div>
 		</>}
 		<div class="drop">

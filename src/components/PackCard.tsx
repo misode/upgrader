@@ -22,16 +22,19 @@ type PackCardProps = {
 	config: FixConfig,
 	source: Version,
 	target: Version,
+	doDownload: number,
 	onError: (error: Error) => unknown,
 	onRemove: () => unknown,
+	onDone: () => unknown,
 }
-export function PackCard({ pack, config, source, target, onError, onRemove }: PackCardProps) {
+export function PackCard({ pack, config, source, target, onError, onRemove, onDone, doDownload }: PackCardProps) {
 	const [status, setStatus] = useState('Loading...')
 	const [download, setDownload] = useState<string | null>(null)
 	const [alerts, setAlerts] = useState<AlertData[]>([])
 	const [error, setError] = useState<string | null>(null)
 	const [alertsHidden, setAlertsHidden] = useState(false)
 	const [prompt, setPrompt] = useState<PromptData | null>(null)
+	const downloadRef = useRef<HTMLAnchorElement>(null)
 	const promptDone = useRef<(value: string) => void>(() => {})
 
 	const downloadName = pack.name.replace(/\.zip$/, `_${target}.zip`)
@@ -58,6 +61,7 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 				setStatus('Zipping...')
 				const download = await Pack.toZip(pack)
 				setDownload(download)
+				onDone()
 			} catch (e: any) {
 				onError(e)
 				setError('Error during upgrading')
@@ -69,9 +73,15 @@ export function PackCard({ pack, config, source, target, onError, onRemove }: Pa
 		setAlertsHidden(!alertsHidden)
 	}
 
+	useEffect(() => {
+		if (doDownload) {
+			downloadRef.current.click()
+		}
+	}, [doDownload])
+
 	return <div class="pack">
 		<div class="pack-head">
-			{download && <a class="pack-status download" href={download} download={downloadName} data-hover={`Download data pack for ${target}`}>
+			{download && <a class="pack-status download" ref={downloadRef} href={download} download={downloadName} data-hover={`Download data pack for ${target}`}>
 				{Octicon.download}
 			</a>}
 			{(!download && !error && !prompt) && <div class="pack-status loading" data-hover={status}>

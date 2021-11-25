@@ -156,6 +156,34 @@ main {
 	padding: 30px;
 }
 
+.download-all {
+	display: flex;
+	align-items: center;
+	align-self: flex-start;
+	background-color: var(--dark-2);
+	border: none;
+	padding: 3px 10px;
+	border-radius: 10px;
+	color: inherit;
+	fill: var(--primary-2);
+	font: inherit;
+	cursor: pointer;
+}
+
+.download-all:hover {
+	background-color: var(--dark-3);
+}
+
+.download-all svg {
+	padding: 5px;
+	width: 34px;
+	height: 34px;
+}
+
+.download-all span {
+	margin-left: 10px;
+}
+
 .pack {
 	padding: 8px;
 	background-color: var(--dark-2);
