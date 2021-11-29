@@ -10,6 +10,7 @@ function fixCriterion(data: any) {
 	const trigger = data.trigger.replace(/^minecraft:/, '')
 	switch (trigger) {
 		case 'nether_travel':
+			if (typeof data.conditions !== 'object') break
 			const { distance, entered, exited, player } = data.conditions
 			data.conditions = {
 				player: mergePlayerLocation(player, exited),
