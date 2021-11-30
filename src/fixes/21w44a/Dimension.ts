@@ -2,12 +2,14 @@ import type { FixContext } from '../../Fix'
 import { Fix } from '../../Fix'
 
 export const Dimension = Fix.all(
-	Fix.onFile('worldgen/noise_settings', ({ data }, ctx) => fixNoiseSettings(data, ctx)),
 	Fix.onFile('dimension', ({ data }, ctx) => {
 		if (data.generator?.type?.replace(/^minecraft:/, '') === 'noise') {
 			const biomes = fixBiomeSource(data.generator.biome_source, ctx)
 			fixNoiseSettings(data.generator.settings, ctx, biomes)
 		}
+	}),
+	Fix.onFile('worldgen/noise_settings', ({ data }, ctx) => {
+		fixNoiseSettings(data, ctx)
 	}),
 )
 
@@ -60,6 +62,8 @@ function fixNoiseSettings(data: any, ctx: FixContext, biomes: string[] = []) {
 		return
 	}
 	if (typeof data !== 'object') return
+
+	if (data.surface_rule !== undefined) return
 
 	data.legacy_random_source = false
 
