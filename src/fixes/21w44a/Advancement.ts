@@ -22,9 +22,9 @@ function fixCriterion(data: any) {
 }
 
 function mergePlayerLocation(player: any, location: any) {
-	if (player === undefined) return location
+	if (player === undefined) return { location }
 	if (Array.isArray(player) && player.length >= 1) {
-		return player // TODO
+		return [player, { type: 'minecraft:entity_properties', predicate: { location } }]
 	}
 	return {
 		...player,
