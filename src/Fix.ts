@@ -28,10 +28,8 @@ export namespace Fix {
 				try {
 					await fix(file, fileCtx)
 				} catch (e: any) {
-					const error = new Error(`Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${file.name}: ${e.message}`)
-					error.stack = e.stack
-					console.warn(error)
-					throw error
+					e.message = `Error fixing ${category.replace(/^worldgen\//, '').replaceAll('_', ' ')} ${file.name}: ${e.message}`
+					throw e
 				}
 			}
 		}

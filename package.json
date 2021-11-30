@@ -20,6 +20,7 @@
 		"vite": "^2.3.4"
 	},
 	"dependencies": {
+		"sourcemapped-stacktrace": "^1.1.11",
 		"strip-json-comments": "^3.1.1"
 	}
 }
