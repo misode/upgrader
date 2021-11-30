@@ -1,5 +1,4 @@
-import type { Version } from './Version'
-import { Versions } from './Version'
+import { Version, Versions } from './Version'
 
 type Config = {
 	source?: string,
@@ -23,7 +22,7 @@ export namespace Store {
 		if (source && Versions.includes(source as Version)) {
 			return source as Version
 		}
-		return '1.16.5'
+		return Version.DEFAULT_SOURCE
 	}
 
 	export function setSource(source: Version) {
@@ -35,7 +34,7 @@ export namespace Store {
 		if (target && Versions.includes(target as Version)) {
 			return target as Version
 		}
-		return '1.17.1'
+		return Version.DEFAULT_TARGET
 	}
 
 	export function setTarget(target: Version) {
