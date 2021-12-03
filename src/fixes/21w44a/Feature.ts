@@ -41,6 +41,7 @@ function fixFeature(data: any, ctx: FixContext) {
 			if (isNonEmptyList(data.config.whitelist)) {
 				filters.push({
 					type: 'minecraft:matching_blocks',
+					offset: [0, -1, 0],
 					blocks: getBlockIds(data.config.whitelist),
 				})
 			}
@@ -49,6 +50,7 @@ function fixFeature(data: any, ctx: FixContext) {
 					type: 'minecraft:not',
 					predicate: {
 						type: 'minecraft:matching_blocks',
+						offset: [0, -1, 0],
 						blocks: getBlockIds(data.config.blacklist),
 					},
 				})
