@@ -103,7 +103,7 @@ export namespace Pack {
 			return { data: JSON.parse(stripJsonComments(text)), indent }
 		} catch (e: any) {
 			console.log(text)
-			throw new Error(`Cannot parse file: ${e.message}.`)
+			throw new Error(`Cannot parse file "${file.name}": ${e.message}.`)
 		}
 	}
 
