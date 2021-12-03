@@ -49,7 +49,7 @@ export namespace Pack {
 		const buffer = await file.arrayBuffer()
 		const zip = await JSZip.loadAsync(buffer)
 
-		const metaFiles = zip.filter(path => path.endsWith('pack.mcmeta'))
+		const metaFiles = zip.filter(path => path.endsWith('pack.mcmeta') && !path.startsWith('__MACOSX/'))
 		if (metaFiles.length === 0) {
 			throw new Error('Cannot find any "pack.mcmeta" files.')
 		}
