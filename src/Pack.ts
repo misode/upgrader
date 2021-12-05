@@ -29,9 +29,15 @@ export type PackFile = {
 	name: string,
 	data: any,
 	indent?: string,
+	error?: string,
 }
 
 export type PackStatus = 'loaded' | 'upgrading' | 'upgraded' | 'writing' | 'done' | 'error'
+
+export type PackError = {
+	message: string,
+	files: string[],
+}
 
 export type Pack = {
 	id: string,
@@ -56,7 +62,6 @@ export namespace Pack {
 		return Promise.all(metaFiles.map(metaFile => {
 			const rootPath = metaFile.name.replace(/\/?pack.mcmeta$/, '')
 			const name = rootPath.length === 0 ? file.name : rootPath.split('/').pop()!
-			console.log(metaFile, rootPath, name)
 			return loadPack(name, zip.folder(rootPath)!)
 		}))
 	}
@@ -86,9 +91,12 @@ export namespace Pack {
 		return Promise.all(root.filter((path) => path.match(matcher) !== null)
 			.map(async file => {
 				const m = file.name.match(matcher)
-				return {
-					name: `${m![1]}:${m![2]}`,
-					...await loadJson(file),
+				const name = `${m![1]}:${m![2]}`
+				try {
+					const data = await loadJson(file)
+					return { name, ...data }
+				} catch (e: any) {
+					return { name, data: undefined, error: e.message }
 				}
 			})
 		)
@@ -102,7 +110,6 @@ export namespace Pack {
 			text = text.split('\n').map(l => l.replace(/^([^"\/]+)\/\/.*/, '$1')).join('\n')
 			return { data: JSON.parse(stripJsonComments(text)), indent }
 		} catch (e: any) {
-			console.log(text)
 			throw new Error(`Cannot parse file "${file.name}": ${e.message}.`)
 		}
 	}
