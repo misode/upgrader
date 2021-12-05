@@ -147,8 +147,9 @@ export namespace Pack {
 	}
 
 	function writeCategory(root: JSZip, category: string, data: PackFile[]) {
-		data.forEach(({ name, data, indent }) => {
+		data.forEach(({ name, data, indent, error }) => {
 			const [namespace, path] = name.split(':')
+			if (error) return
 			writeJson(root, `${namespace}/${category}/${path}.json`, data, indent)
 		})
 	}
@@ -181,6 +182,7 @@ export namespace Pack {
 			config: (key: keyof FixConfig) => config.features[key],
 			read: (category: string, name: string) => {
 				return pack.data[category].find(f =>
+					f.error !== undefined &&
 					f.name.replace(/^minecraft:/, '') === name.replace(/^minecraft:/, ''))
 			},
 			create: (category: string, name: string, data: any) => {

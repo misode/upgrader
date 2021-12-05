@@ -10,7 +10,7 @@ type FeatureData = {
 const STEPS = ['raw_generation', 'lakes', 'local_modifications', 'underground_structures', 'surface_structures', 'strongholds', 'underground_ores', 'underground_decoration', 'fluid_springs', 'vegetal_decoration', 'top_layer_modification']
 
 export async function CycleOrder(pack: Pack, ctx: FixContext) {
-	const biomes = pack.data['worldgen/biome']
+	const biomes = pack.data['worldgen/biome'].filter(f => !f.error)
 
 	const biomesWithDuplicates = new Set<string>()
 	for (let step = 0; step < STEPS.length; step += 1) {

@@ -21,6 +21,7 @@ export namespace Fix {
 	export function onFile(category: typeof categories[number] | 'functions', fix: (file: PackFile, ctx: FixContext) => unknown): Fix {
 		return async (pack, ctx) => {
 			for (const file of pack.data[category]) {
+				if (file.error) continue
 				const fileCtx: FixContext = {
 					...ctx,
 					warn: (message: string) => ctx.warn(message, [file.name]),
