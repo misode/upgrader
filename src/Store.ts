@@ -18,6 +18,10 @@ export namespace Store {
 	}
 
 	export function getSource(): Version {
+		const sourceOverride = new URLSearchParams(location.search).get('from')
+		if (sourceOverride && Versions.includes(sourceOverride as Version)) {
+			return sourceOverride as Version
+		}
 		const source = get().source
 		if (source && Versions.includes(source as Version)) {
 			return source as Version
@@ -30,6 +34,10 @@ export namespace Store {
 	}
 
 	export function getTarget(): Version {
+		const targetOverride = new URLSearchParams(location.search).get('to')
+		if (targetOverride && Versions.includes(targetOverride as Version)) {
+			return targetOverride as Version
+		}
 		const target = get().target
 		if (target && Versions.includes(target as Version)) {
 			return target as Version
