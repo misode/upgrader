@@ -41,18 +41,8 @@ function fixSurfaceCondition(data: any) {
 	if (typeof data !== 'object') return
 	const condition = data.type.replace(/^minecraft:/, '')
 	switch (condition) {
-		case 'not':
-			fixSurfaceCondition(data.invert)
-			break
 		case 'stone_depth':
-			data.offset = 0
-			data.add_surface_depth = data.add_run_depth
-			data.add_surface_secondary_depth = false
-			delete data.add_run_depth
-			break
-		case 'water':
-		case 'y_above':
-			data.surface_depth_multiplier = data.run_depth_multiplier
-			delete data.run_depth_multiplier
+			data.secondary_depth_range = data.add_surface_secondary_depth ? 6 : 0
+			delete data.add_surface_secondary_depth
 	}
 }
