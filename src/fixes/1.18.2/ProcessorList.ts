@@ -1,6 +1,6 @@
 import { Fix } from '../../Fix'
 
-export const Feature = Fix.all(
+export const ProcessorList = Fix.all(
 	Fix.onFile('worldgen/processor_list', ({ data }) => fixProcessorList(data)),
 	Fix.onFile('worldgen/template_pool', ({ data }) => fixTemplatePool(data)),
 )
