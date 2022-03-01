@@ -10,6 +10,8 @@ export const NoiseSettings = Fix.all(
 )
 
 function fixNoiseSettings(data: any) {
+	if (typeof data !== 'object') return
+
 	fixSurfaceRule(data.surface_rule)
 
 	data.noise_router = createNoiseRouter(data.aquifers_enabled, data.ore_veins_enabled, data.noise_caves_enabled, data.noodle_caves_enabled, data.noise.island_noise_override, data.noise.large_biomes)
