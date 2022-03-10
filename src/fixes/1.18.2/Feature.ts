@@ -32,13 +32,16 @@ function fixConfiguredFeature(data: any) {
 			fixPlacedFeature(data.config.default)
 			break
 		case 'simple_random_selector':
-			data.config.features = data.config.features.forEach((f: any) => {
+			data.config.features.forEach((f: any) => {
 				fixPlacedFeature(f)
 			})
 			break
 		case 'vegetation_patch':
 		case 'waterlogged_vegetation_patch':
 			fixPlacedFeature(data.config.vegetation_feature)
+			if (typeof data.config === 'object') {
+				data.config.replaceable = '#' + data.config.replaceable
+			}
 			break
 		case 'geode':
 			if (typeof data.config?.blocks === 'object') {
