@@ -37,7 +37,7 @@ export function PackCard({ pack, config, source, target, onError, onRemove, onDo
 	const downloadRef = useRef<HTMLAnchorElement>(null)
 	const promptDone = useRef<(value: string) => void>(() => {})
 
-	const downloadName = pack.name.replace(/\.zip$/, `_${target}.zip`)
+	const downloadName = `${pack.name}_${target}.zip`
 
 	const onPrompt = (title: string, message?: string, actions?: string[], info?: string[]) => {
 		setPrompt({ title, message, actions: actions ?? ['Confirm'], info })

@@ -66,7 +66,9 @@ export namespace Pack {
 		}
 		return Promise.all(metaFiles.map(metaFile => {
 			const rootPath = metaFile.name.replace(/\/?pack.mcmeta$/, '')
-			const name = rootPath.length === 0 ? file.name : rootPath.split('/').pop()!
+			const name = rootPath.length === 0
+				? file.name.replace(/\.zip$/, '')
+				: rootPath.split('/').pop()!
 			return loadPack(name, zip.folder(rootPath)!)
 		}))
 	}
