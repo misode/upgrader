@@ -1,4 +1,4 @@
-export const Versions = ['1.16.5', '1.17.1', '21w44a', '1.18.1', '1.18.2'] as const
+export const Versions = ['1.16.5', '1.17.1', '21w44a', '1.18.1', '1.18.2', '1.19'] as const
 export type Version = typeof Versions[number]
 
 export namespace Version {
@@ -19,5 +19,9 @@ export namespace Version {
 
 	export function includesInclusive(source: Version, target: Version, from: Version, to: Version) {
 		return ord(source) <= ord(to) && ord(target) >= ord(from)
+	}
+
+	export function isWorkInProgress(source: Version, target: Version) {
+		return Version.includes(source, target, '1.18.2', '1.19')
 	}
 }
