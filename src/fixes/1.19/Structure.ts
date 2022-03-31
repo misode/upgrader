@@ -1,3 +1,4 @@
+import type { FixContext } from '../../Fix'
 import { Fix } from '../../Fix'
 
 export const Structure = Fix.all(
@@ -6,7 +7,8 @@ export const Structure = Fix.all(
 		pack.data['worldgen/configured_structure_feature']
 			.forEach((file) => file.deleted = true)
 	},
-	Fix.onFile('worldgen/structure', ({ data }) => fixStructure(data))
+	Fix.onFile('worldgen/structure_set', ({ data, name }, ctx) => fixStructureSet(data, name, ctx)),
+	Fix.onFile('worldgen/structure', ({ data }) => fixStructure(data)),
 )
 
 function fixStructure(data: any) {
@@ -67,5 +69,37 @@ function setup(setup: { weight?: number, vines?: boolean, can_be_cold?: boolean,
 		mossiness: 0,
 		overgrown: false,
 		...setup,
+	}
+}
+
+function fixStructureSet(data: any, name: string, ctx: FixContext) {
+	if (typeof data !== 'object') return
+
+	const structure = ctx.read('worldgen/structure', data.structures[0].structure)?.data
+	if (!structure) return
+
+	const structureType = structure.type?.replace(/^minecraft:/, '')
+	switch (structureType) {
+		case 'mineshaft':
+			data.placement.frequency_reduction_method = 'legacy_type_3'
+			data.placement.frequency = structure.config.probability
+			break
+	}
+
+	if (name === 'minecraft:pillager_outposts') {
+		data.placement.exclusion_zone ={
+			other_set: 'minecraft:villages',
+			chunk_count: 10,
+		}
+		data.placement.frequency_reduction_method = 'legacy_type_1'
+		data.placement.frequency = 0.2
+	}
+
+	const placementType = data.placement.type?.replace(/^minecraft:/, '')
+	switch (placementType) {
+		case 'concentric_rings':
+			data.placement.salt = 0
+			data.placement.preferred_biomes = '#minecraft:stronghold_biased_to'
+			break
 	}
 }
