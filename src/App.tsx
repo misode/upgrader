@@ -106,9 +106,9 @@ export function App() {
 			<p>Convert from <VersionPicker value={source} onChange={changeSource}/> to <VersionPicker value={target} onChange={changeTarget}/></p>
 			{Version.order(target, source)
 				? <p class="error-message">Invalid version range</p>
-				// : Version.includes(source, target, '1.18.1', '1.18.2')
-				// 	? <p class="warning-message">This upgrade is still being worked on</p>
-				: null}
+				: Version.isWorkInProgress(source, target)
+					? <p class="warning-message">This upgrade is still being worked on</p>
+					: null}
 		</div>
 		<div class="configs">
 			<Config name="Upgrade functions" value={config.functions} onChange={v => setConfig({ ...config, functions: v })} />

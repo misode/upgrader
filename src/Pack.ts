@@ -26,6 +26,7 @@ export const categories = [
 	'worldgen/noise',
 	'worldgen/placed_feature',
 	'worldgen/processor_list',
+	'worldgen/structure',
 	'worldgen/structure_set',
 	'worldgen/template_pool',
 ] as const
@@ -35,6 +36,7 @@ export type PackFile = {
 	data: any,
 	indent?: string,
 	error?: string,
+	deleted?: boolean,
 }
 
 export type PackStatus = 'loaded' | 'upgrading' | 'upgraded' | 'writing' | 'done' | 'error'
@@ -154,17 +156,26 @@ export namespace Pack {
 	}
 
 	function writeCategory(root: JSZip, category: string, data: PackFile[]) {
-		data.forEach(({ name, data, indent, error }) => {
-			const [namespace, path] = name.split(':')
-			if (error) return
-			writeJson(root, `${namespace}/${category}/${path}.json`, data, indent)
+		data.forEach(({ name, data, indent, error, deleted }) => {
+			const [namespace, id] = name.split(':')
+			const path = `${namespace}/${category}/${id}.json`
+			if (deleted) {
+				root.remove(path)
+			} else if (!error) {
+				writeJson(root, path, data, indent)
+			}
 		})
 	}
 
 	function writeFunctions(root: JSZip, functions: PackFile[]) {
-		functions.forEach(({ name, data }) => {
-			const [namespace, path] = name.split(':')
-			writeText(root, `${namespace}/functions/${path}.mcfunction`, data.join('\n'))
+		functions.forEach(({ name, data, error, deleted }) => {
+			const [namespace, id] = name.split(':')
+			const path = `${namespace}/functions/${id}.mcfunction`
+			if (deleted) {
+				root.remove(path)
+			} else if (!error) {
+				writeText(root, path, data.join('\n'))
+			}
 		})
 	}
 

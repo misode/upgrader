@@ -21,7 +21,7 @@ export namespace Fix {
 	export function onFile(category: typeof categories[number] | 'functions', fix: (file: PackFile, ctx: FixContext) => unknown): Fix {
 		return async (pack, ctx) => {
 			for (const file of pack.data[category]) {
-				if (file.error) continue
+				if (file.error || file.deleted) continue
 				const fileCtx: FixContext = {
 					...ctx,
 					warn: (message: string) => ctx.warn(message, [file.name]),
@@ -94,6 +94,13 @@ export namespace Fix {
 		return async () => {
 			console.debug(message)
 		}
+	}
+
+	export function packFormat(format: number): Fix {
+		return Fix.all(
+			Fix.assert(pack => pack.meta.data.pack.pack_format < format, `This pack already has pack_format ${format} or higher and cannot be upgraded.`),
+			Fix.when('packFormat', async pack => pack.meta.data.pack.pack_format = format),
+		)
 	}
 }
 
