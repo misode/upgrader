@@ -24,6 +24,11 @@ function fixStructure(data: any) {
 	data.step = 'surface_structures'
 	delete data.probability
 
+	if (data.adapt_noise) {
+		data.terrain_adaptation = type === 'stronghold' ? 'bury' : 'beard_thin'
+		delete data.adapt_noise
+	}
+
 	switch (type) {
 		case 'bastion_remnant':
 			data.type = 'minecraft:jigsaw'
