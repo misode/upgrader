@@ -13,7 +13,7 @@ export const DensityFunction = Fix.all(
 function fixNoiseSettings(data: any) {
 	if (typeof data !== 'object') return
 	
-	Object.values(data.noise.noise_router).forEach(fixDensityFunction)
+	Object.values(data.noise_router).forEach(fixDensityFunction)
 }
 
 function fixDensityFunction(data: any) {
