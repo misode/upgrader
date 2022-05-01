@@ -103,7 +103,7 @@ function fixEntity(data: any) {
 	if (data.player) {
 		data.type_specific = {
 			type: 'player',
-			player: data.player,
+			...data.player,
 		}
 		delete data.player
 	} else if (data.fishing_hook) {
