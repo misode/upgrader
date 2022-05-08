@@ -60,6 +60,14 @@ function fixConfiguredFeature(data: any) {
 			break
 		case 'glow_lichen':
 			data.type = 'minecraft:multiface_growth'
+			break
+		case 'tree':
+			data.config.decorators?.forEach((decorator: any) => {
+				if (decorator.typereplace(/^minecraft:/, '') === 'leave_vine') {
+					decorator.probability = 0.25
+				}
+			})
+			break
 	}
 }
 
