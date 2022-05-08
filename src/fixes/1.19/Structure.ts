@@ -33,6 +33,7 @@ function fixStructure(data: any) {
 		case 'bastion_remnant':
 			data.type = 'minecraft:jigsaw'
 			data.start_height = { absolute: 33 }
+			data.max_distance_from_center = 80
 			data.use_expansion_hack = false
 			break
 		case 'pillager_outpost':
@@ -40,6 +41,7 @@ function fixStructure(data: any) {
 			data.type = 'minecraft:jigsaw'
 			data.start_height = { absolute: 0 },
 			data.project_start_to_heightmap = 'WORLD_SURFACE_WG'
+			data.max_distance_from_center = 80
 			data.use_expansion_hack = true
 			break
 		case 'ruined_portal':

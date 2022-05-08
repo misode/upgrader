@@ -51,6 +51,7 @@ function fixCriterion(data: any) {
 			data.conditions = {
 				player: mergePlayerLocation(player, location),
 			}
+			delete data.conditions.location
 			break
 	}
 }

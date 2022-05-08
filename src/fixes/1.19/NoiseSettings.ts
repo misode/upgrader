@@ -1,6 +1,6 @@
 import { Fix } from '../../Fix'
 
-export const DensityFunction = Fix.all(
+export const NoiseSettings = Fix.all(
 	Fix.onFile('worldgen/noise_settings', ({ data }) => fixNoiseSettings(data)),
 	Fix.onFile('dimension', ({ data }) => {
 		if (data.generator?.type?.replace(/^minecraft:/, '') === 'noise') {
@@ -21,6 +21,10 @@ function fixDensityFunction(data: any) {
 
 	const type = data.type.replace(/^minecraft:/, '')
 	switch (type) {
+		case 'old_blended_noise':
+			// TODO: add sampling fields from noise settings
+			data.smear_scale_multiplier = 8
+			break
 		case 'spline':
 			delete data.min_value
 			delete data.max_value
