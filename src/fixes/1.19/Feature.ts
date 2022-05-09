@@ -63,7 +63,7 @@ function fixConfiguredFeature(data: any) {
 			break
 		case 'tree':
 			data.config.decorators?.forEach((decorator: any) => {
-				if (decorator.typereplace(/^minecraft:/, '') === 'leave_vine') {
+				if (decorator?.type?.replace(/^minecraft:/, '') === 'leave_vine') {
 					decorator.probability = 0.25
 				}
 			})
