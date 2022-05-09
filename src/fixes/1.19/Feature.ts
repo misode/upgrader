@@ -43,20 +43,51 @@ function fixConfiguredFeature(data: any) {
 		case 'disk':
 		case 'ice_patch':
 		case 'surface_disk':
-			data.type = 'minecraft:disk'
-			data.config.state_provider = {
-				fallback: {
-					type: 'minecraft:simple_state_provider',
-					state: data.config.state,
+			data.type = 'minecraft:random_selector',
+			data.config = {
+				features: [],
+				default: {
+					feature: {
+						type: 'minecraft:disk',
+						config: {
+							half_height: data.config.half_height,
+							radius: data.config.radius,
+							state_provider: {
+								fallback: {
+									type: 'minecraft:simple_state_provider',
+									state: data.config.state,
+								},
+								rules: [],
+				
+							},
+							target: {
+								type: 'minecraft:matching_blocks',
+								blocks: getBlockIds(data.config.targets),
+							},
+						},
+					},
+					placement: [
+						...type === 'disk' ? [] : [{
+							type: 'minecraft:random_offset',
+							xz_spread: 0,
+							y_spread: -1,
+						}],
+						{
+							type: 'minecraft:block_predicate_filter',
+							predicate: type === 'disk' ? {
+								type: 'minecraft:matching_fluids',
+								fluids: 'minecraft:water',
+							} : type === 'ice_patch' ? {
+								type: 'minecraft:matching_blocks',
+								blocks: 'minecraft:snow',
+							} : {
+								type: 'minecraft:matching_blocks',
+								blocks: data.config?.can_origin_replace?.filter((id: string) => id?.replace(/^minecraft:/, '') !== 'water') ?? [],
+							},
+						},
+					],
 				},
-				rules: [],
 			}
-			delete data.config.state
-			data.config.target = {
-				type: 'minecraft:matching_blocks',
-				blocks: getBlockIds(data.config.targets),
-			}
-			delete data.config.targets
 			break
 		case 'glow_lichen':
 			data.type = 'minecraft:multiface_growth'
