@@ -1,8 +1,5 @@
 import { Fix } from '../../Fix'
 
-/**
- * Fixes feature in location predicate
- */
 export const Predicates = Fix.all(
 	Fix.onFile('predicates', ({ data }) => {
 		if (Array.isArray(data)) {

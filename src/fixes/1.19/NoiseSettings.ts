@@ -1,22 +1,47 @@
+import type { FixContext } from '../../Fix'
 import { Fix } from '../../Fix'
+import { DEFAULT_NOISE } from './DefaultNoise'
+
+const PROCESSED = new Set()
 
 export const NoiseSettings = Fix.all(
-	Fix.onFile('worldgen/noise_settings', ({ data }) => fixNoiseSettings(data)),
-	Fix.onFile('dimension', ({ data }) => {
+	async () => {
+		PROCESSED.clear()
+	},
+	Fix.onFile('worldgen/noise_settings', ({ data }, ctx) => fixNoiseSettings(data, ctx)),
+	Fix.onFile('dimension', ({ data }, ctx) => {
 		if (data.generator?.type?.replace(/^minecraft:/, '') === 'noise') {
-			fixNoiseSettings(data.generator.settings)
+			fixNoiseSettings(data.generator.settings, ctx)
 		}
 	}),
-	Fix.onFile('worldgen/density_function', ({ data }) => fixDensityFunction(data)),
+	Fix.onFile('worldgen/density_function', ({ name, data }, ctx) => {
+		const id = data.includes(':') ? name : 'minecraft:' + name
+		if (!PROCESSED.has(id)) {
+			PROCESSED.add(id)
+			fixDensityFunction(data, ctx, DEFAULT_NOISE)
+		}
+	}),
 )
 
-function fixNoiseSettings(data: any) {
+function fixNoiseSettings(data: any, ctx: FixContext) {
 	if (typeof data !== 'object') return
-	
-	Object.values(data.noise_router).forEach(fixDensityFunction)
+
+	Object.values(data.noise_router).forEach((d) => fixDensityFunction(d, ctx, data.noise))
 }
 
-function fixDensityFunction(data: any) {
+function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
+	if (typeof data === 'string') {
+		const id = data.includes(':') ? data : 'minecraft:' + data
+		if (!PROCESSED.has(id)) {
+			PROCESSED.add(id)
+			const file = ctx.read('worldgen/density_function', id)
+			if (file && !file.error && !file.deleted) {
+				fixDensityFunction(file.data, ctx, noise)
+			}
+		}
+		return
+	}
+
 	if (typeof data !== 'object') return
 
 	const type = data.type.replace(/^minecraft:/, '')
