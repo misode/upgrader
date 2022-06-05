@@ -15,7 +15,7 @@ export const NoiseSettings = Fix.all(
 		}
 	}),
 	Fix.onFile('worldgen/density_function', ({ name, data }, ctx) => {
-		const id = data.includes(':') ? name : 'minecraft:' + name
+		const id = name.includes(':') ? name : 'minecraft:' + name
 		if (!PROCESSED.has(id)) {
 			PROCESSED.add(id)
 			fixDensityFunction(data, ctx, DEFAULT_NOISE)
