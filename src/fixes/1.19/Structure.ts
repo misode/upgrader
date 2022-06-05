@@ -44,6 +44,18 @@ function fixStructure(data: any) {
 			data.max_distance_from_center = 80
 			data.use_expansion_hack = true
 			break
+		case 'endcity':
+			data.type = 'minecraft:end_city'
+			break
+		case 'jungle_pyramid':
+			data.type = 'minecraft:jungle_temple'
+			break
+		case 'mansion':
+			data.type = 'minecraft:woodland_mansion'
+			break
+		case 'monument':
+			data.type = 'minecraft:ocean_monument'
+			break
 		case 'ruined_portal':
 			const Setups: Record<string, unknown[]> = {
 				standard: [
