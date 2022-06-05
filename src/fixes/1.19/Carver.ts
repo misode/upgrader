@@ -4,8 +4,13 @@ export const Carver = Fix.all(
 	Fix.onFile('worldgen/configured_carver', ({ data }) => fixCarver(data)),
 	Fix.onFile('worldgen/biome', ({ data }) => {
 		if (typeof data.carvers === 'object') {
-			data.carvers.air?.forEach(fixCarver)
-			data.carvers.liquid?.forEach(fixCarver)
+			Object.values(data.carvers).forEach(carver => {
+				if (Array.isArray(carver)) {
+					carver.forEach(fixCarver)
+				} else {
+					fixCarver(carver)
+				}
+			})
 		}
 	}),
 )
