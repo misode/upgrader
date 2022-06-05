@@ -209,7 +209,7 @@ export namespace Pack {
 			config: (key: keyof FixConfig) => config.features[key],
 			read: (category: string, name: string) => {
 				return pack.data[category].find(f =>
-					f.error !== undefined &&
+					f.error === undefined &&
 					f.name.replace(/^minecraft:/, '') === name.replace(/^minecraft:/, ''))
 			},
 			create: (category: string, name: string, data: any) => {

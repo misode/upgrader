@@ -28,6 +28,13 @@ function fixNoiseSettings(data: any, ctx: FixContext) {
 	if (typeof data !== 'object') return
 
 	Object.values(data.noise_router).forEach((d) => fixDensityFunction(d, ctx, data.noise))
+
+	delete data.noise.terrain_shaper
+	delete data.noise.sampling
+	delete data.noise.top_slide
+	delete data.noise.bottom_slide
+
+	data.spawn_target = DEFAULT_SPAWN_TARGET
 }
 
 function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
@@ -56,6 +63,7 @@ function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
 		case 'cache_all_in_cell':
 		case 'cache_once':
 		case 'cube':
+		case 'flat_cache':
 		case 'half_negative':
 		case 'interpolated':
 		case 'quarter_negative':
@@ -192,3 +200,5 @@ function yClampedGradient(from_y: number, to_y: number, from_value: number, to_v
 		to_value,
 	}
 }
+
+const DEFAULT_SPAWN_TARGET = JSON.parse('[{"erosion":[-1,1],"depth":0,"weirdness":[-1,-0.16],"offset":0,"temperature":[-1,1],"humidity":[-1,1],"continentalness":[-0.11,1]},{"erosion":[-1,1],"depth":0,"weirdness":[0.16,1],"offset":0,"temperature":[-1,1],"humidity":[-1,1],"continentalness":[-0.11,1]}]')
