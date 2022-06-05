@@ -87,6 +87,12 @@ function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
 			data.y_factor = noise.sampling.y_factor
 			data.smear_scale_multiplier = 8
 			break
+		case 'slide':
+			fixDensityFunction(data.argument, ctx, noise)
+			const slides = createSlides(data.argument, noise)
+			delete data.argument
+			Object.assign(data, slides)
+			break
 		case 'spline':
 			fixSpline(data.spline, ctx, noise)
 			delete data.min_value
@@ -136,5 +142,53 @@ function fixTerrainSpline(data: any, ctx: FixContext, coordinates: Record<string
 			value: fixTerrainSpline(point.value, ctx, coordinates),
 			derivative: point.derivative,
 		})),
+	}
+}
+
+function createSlides(input: any, noise: any) {
+	const top = noise.top_slide
+	if (top.size > 0) {
+		const fromY = noise.min_y + noise.height - (top.offset + top.size) * 4 * noise.size_vertical
+		const toY = noise.min_y + noise.height - top.offset * 4 * noise.size_vertical
+		const y = yClampedGradient(fromY, toY, 1, 0)
+		input = lerp(y, input, top.target)
+	}
+	const bottom = noise.bottom_slide
+	if (bottom.size > 0) {
+		const fromY = noise.min_y + bottom.offset * 4 * noise.size_vertical
+		const toY = noise.min_y + (bottom.offset + bottom.size) * 4 * noise.size_vertical
+		const y = yClampedGradient(fromY, toY, 0, 1)
+		input = lerp(y, input, bottom.target)
+	}
+	return input
+}
+
+function lerp(a: any, b: any, t: number) {
+	return add(mul(a, add(b, -t)), t)
+}
+
+function add(a: any, b: any) {
+	return {
+		type: 'minecraft:add',
+		argument1: a,
+		argument2: b,
+	}
+}
+
+function mul(a: any, b: any) {
+	return {
+		type: 'minecraft:mul',
+		argument1: a,
+		argument2: b,
+	}
+}
+
+function yClampedGradient(from_y: number, to_y: number, from_value: number, to_value: number) {
+	return {
+		type: 'minecraft:y_clamped_gradient',
+		from_y,
+		to_y,
+		from_value,
+		to_value,
 	}
 }
