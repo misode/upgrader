@@ -3,7 +3,7 @@ import { Fix } from '../../Fix'
 
 export const Structure = Fix.all(
 	async (pack) => {
-		pack.data['worldgen/structure'] = pack.data['worldgen/configured_structure_feature']
+		pack.data['worldgen/structure'] = pack.data['worldgen/configured_structure_feature'].map(f => ({ ...f }))
 		pack.data['worldgen/configured_structure_feature']
 			.forEach((file) => file.deleted = true)
 	},
