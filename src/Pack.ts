@@ -13,9 +13,15 @@ export const categories = [
 	'loot_tables',
 	'predicates',
 	'tags/blocks',
+	'tags/entity_types',
+	'tags/fluids',
+	'tags/game_events',
 	'tags/items',
 	'tags/worldgen/biome',
 	'tags/worldgen/configured_structure_feature',
+	'tags/worldgen/flat_level_generator_preset',
+	'tags/worldgen/structure',
+	'tags/worldgen/world_preset',
 	'worldgen/biome',
 	'worldgen/configured_carver',
 	'worldgen/configured_feature',
@@ -96,19 +102,22 @@ export namespace Pack {
 	}
 
 	async function loadCategory(root: JSZip, category: string): Promise<PackFile[]> {
-		const matcher = new RegExp(`([^\/]+)\/${category}\/(.*)\.json$`)
-		return Promise.all(root.filter((path) => path.match(matcher) !== null)
-			.map(async file => {
-				const m = file.name.match(matcher)
-				const name = `${m![1]}:${m![2]}`
-				try {
-					const data = await loadJson(file)
-					return { name, ...data }
-				} catch (e: any) {
-					return { name, data: undefined, error: e.message }
-				}
-			})
-		)
+		const matcher = new RegExp(`^([^\/]+)\/${category}\/(.*)\.json$`)
+		const files: { name: string, file: JSZipObject }[] = []
+		root.forEach((path, file) => {
+			const match = path.match(matcher)
+			if (match && match[1] && match[2]) {
+				files.push({ name: `${match[1]}:${match[2]}`, file })
+			}
+		})
+		return Promise.all(files.map(async ({ name, file }) => {
+			try {
+				const data = await loadJson(file)
+				return { name, ...data }
+			} catch (e: any) {
+				return { name, data: undefined, error: e.message }
+			}
+		}))
 	}
 
 	async function loadJson(file: JSZipObject) {
