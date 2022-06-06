@@ -46,6 +46,10 @@ function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
 			const file = ctx.read('worldgen/density_function', id)
 			if (file && !file.error && !file.deleted) {
 				fixDensityFunction(file.data, ctx, noise)
+			} else if (DF_DEFAULTS.has(id)) {
+				const contents = JSON.parse(DF_DEFAULTS.get(id)!)
+				fixDensityFunction(contents, ctx, noise)
+				ctx.create('worldgen/density_function', id, contents)
 			}
 		} else {
 			console.debug(`Already visited ${id}`)
@@ -119,15 +123,19 @@ function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
 			}
 			const splineType = data.spline
 			data.spline = fixTerrainSpline(noise.terrain_shaper[splineType], ctx, coordinates)
-			if (splineType === 'offset' || splineType === 'factor') {
+			if (splineType === 'offset') {
 				data.type = 'minecraft:add',
-				data.argument1 = splineType === 'offset' ? -0.5037500262260437 : -10,
+				data.argument1 = -0.5037500262260437,
 				data.argument2 = {
 					type: 'minecraft:spline',
 					spline: data.spline,
 				}
-				delete data.spline
 			}
+			delete data.min_value
+			delete data.max_value
+			delete data.continentalness
+			delete data.erosion
+			delete data.weirdness
 			break
 	}
 }
@@ -212,3 +220,13 @@ function yClampedGradient(from_y: number, to_y: number, from_value: number, to_v
 }
 
 const DEFAULT_SPAWN_TARGET = JSON.parse('[{"erosion":[-1,1],"depth":0,"weirdness":[-1,-0.16],"offset":0,"temperature":[-1,1],"humidity":[-1,1],"continentalness":[-0.11,1]},{"erosion":[-1,1],"depth":0,"weirdness":[0.16,1],"offset":0,"temperature":[-1,1],"humidity":[-1,1],"continentalness":[-0.11,1]}]')
+
+const DF_DEFAULTS = new Map(Object.entries({
+	'minecraft:overworld/sloped_cheese': '{"argument1":{"argument1":4,"argument2":{"argument":{"argument1":{"argument1":"minecraft:overworld/depth","argument2":{"argument1":{"argument":{"argument":{"argument1":{"argument1":0,"argument2":{"argument1":1,"argument2":{"argument1":-1,"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:mul"},"argument2":{"argument1":{"spline":"jaggedness","min_value":0,"max_value":1.28,"continentalness":"minecraft:overworld/continents","erosion":"minecraft:overworld/erosion","weirdness":"minecraft:overworld/ridges","type":"minecraft:terrain_shaper_spline"},"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:cache_2d"},"type":"minecraft:flat_cache"},"argument2":{"argument":{"noise":"minecraft:jagged","xz_scale":1500,"y_scale":0,"type":"minecraft:noise"},"type":"minecraft:half_negative"},"type":"minecraft:mul"},"type":"minecraft:add"},"argument2":"minecraft:overworld/factor","type":"minecraft:mul"},"type":"minecraft:quarter_negative"},"type":"minecraft:mul"},"argument2":"minecraft:overworld/base_3d_noise","type":"minecraft:add"}',
+	'minecraft:overworld/factor': '{"argument":{"argument":{"argument1":{"argument1":10,"argument2":{"argument1":1,"argument2":{"argument1":-1,"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:mul"},"argument2":{"argument1":{"spline":"factor","min_value":0,"max_value":8,"continentalness":"minecraft:overworld/continents","erosion":"minecraft:overworld/erosion","weirdness":"minecraft:overworld/ridges","type":"minecraft:terrain_shaper_spline"},"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:cache_2d"},"type":"minecraft:flat_cache"}',
+	'minecraft:overworld/depth': '{"argument":{"argument":{"argument1":{"argument1":10,"argument2":{"argument1":1,"argument2":{"argument1":-1,"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:mul"},"argument2":{"argument1":{"spline":"factor","min_value":0,"max_value":8,"continentalness":"minecraft:overworld/continents","erosion":"minecraft:overworld/erosion","weirdness":"minecraft:overworld/ridges","type":"minecraft:terrain_shaper_spline"},"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:cache_2d"},"type":"minecraft:flat_cache"}',
+	'minecraft:overworld/base_3d_noise': '{"type":"minecraft:old_blended_noise"}',
+	'minecraft:overworld_large_biomes/sloped_cheese': '{"argument1":{"argument1":4,"argument2":{"argument":{"argument1":{"argument1":"minecraft:overworld_large_biomes/depth","argument2":{"argument1":{"argument":{"argument":{"argument1":{"argument1":0,"argument2":{"argument1":1,"argument2":{"argument1":-1,"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:mul"},"argument2":{"argument1":{"spline":"jaggedness","min_value":0,"max_value":1.28,"continentalness":"minecraft:overworld_large_biomes/continents","erosion":"minecraft:overworld_large_biomes/erosion","weirdness":"minecraft:overworld/ridges","type":"minecraft:terrain_shaper_spline"},"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:cache_2d"},"type":"minecraft:flat_cache"},"argument2":{"argument":{"noise":"minecraft:jagged","xz_scale":1500,"y_scale":0,"type":"minecraft:noise"},"type":"minecraft:half_negative"},"type":"minecraft:mul"},"type":"minecraft:add"},"argument2":"minecraft:overworld_large_biomes/factor","type":"minecraft:mul"},"type":"minecraft:quarter_negative"},"type":"minecraft:mul"},"argument2":"minecraft:overworld/base_3d_noise","type":"minecraft:add"}',
+	'minecraft:overworld_large_biomes/depth': '{"argument1":{"from_y":-64,"to_y":320,"from_value":1.5,"to_value":-1.5,"type":"minecraft:y_clamped_gradient"},"argument2":{"argument":{"argument":{"argument1":{"argument1":{"type":"minecraft:blend_offset"},"argument2":{"argument1":1,"argument2":{"argument1":-1,"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:mul"},"argument2":{"argument1":{"spline":"offset","min_value":-0.81,"max_value":2.5,"continentalness":"minecraft:overworld_large_biomes/continents","erosion":"minecraft:overworld_large_biomes/erosion","weirdness":"minecraft:overworld/ridges","type":"minecraft:terrain_shaper_spline"},"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:cache_2d"},"type":"minecraft:flat_cache"},"type":"minecraft:add"}',
+	'minecraft:overworld_large_biomes/factor': '{"argument":{"argument":{"argument1":{"argument1":10,"argument2":{"argument1":1,"argument2":{"argument1":-1,"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:mul"},"argument2":{"argument1":{"spline":"factor","min_value":0,"max_value":8,"continentalness":"minecraft:overworld_large_biomes/continents","erosion":"minecraft:overworld_large_biomes/erosion","weirdness":"minecraft:overworld/ridges","type":"minecraft:terrain_shaper_spline"},"argument2":{"argument":{"type":"minecraft:blend_alpha"},"type":"minecraft:cache_once"},"type":"minecraft:mul"},"type":"minecraft:add"},"type":"minecraft:cache_2d"},"type":"minecraft:flat_cache"}',
+}))
