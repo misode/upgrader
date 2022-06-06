@@ -102,6 +102,13 @@ export namespace Fix {
 			Fix.when('packFormat', async pack => pack.meta.data.pack.pack_format = format),
 		)
 	}
+
+	export function rename(from: string, to: string): Fix {
+		return async (pack) => {
+			pack.data[to] = pack.data[from].map(f => ({ ...f }))
+			pack.data[from].forEach((file) => file.deleted = true)
+		}
+	}
 }
 
 export type FixConfig = {

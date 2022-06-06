@@ -2,11 +2,8 @@ import type { FixContext } from '../../Fix'
 import { Fix } from '../../Fix'
 
 export const Structure = Fix.all(
-	async (pack) => {
-		pack.data['worldgen/structure'] = pack.data['worldgen/configured_structure_feature'].map(f => ({ ...f }))
-		pack.data['worldgen/configured_structure_feature']
-			.forEach((file) => file.deleted = true)
-	},
+	Fix.rename('worldgen/configured_structure_feature', 'worldgen/structure'),
+	Fix.rename('tags/worldgen/configured_structure_feature', 'tags/worldgen/structure'),
 	Fix.onFile('worldgen/structure_set', ({ data, name }, ctx) => fixStructureSet(data, name, ctx)),
 	Fix.onFile('worldgen/structure', ({ data }) => fixStructure(data)),
 )
