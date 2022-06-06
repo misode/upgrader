@@ -117,7 +117,17 @@ function fixDensityFunction(data: any, ctx: FixContext, noise: any) {
 				weirdness: data.weirdness,
 				ridges: 'minecraft:overworld/ridges_folded',
 			}
-			data.spline = fixTerrainSpline(noise.terrain_shaper[data.spline], ctx, coordinates)
+			const splineType = data.spline
+			data.spline = fixTerrainSpline(noise.terrain_shaper[splineType], ctx, coordinates)
+			if (splineType === 'offset' || splineType === 'factor') {
+				data.type = 'minecraft:add',
+				data.argument1 = splineType === 'offset' ? -0.5037500262260437 : -10,
+				data.argument2 = {
+					type: 'minecraft:spline',
+					spline: data.spline,
+				}
+				delete data.spline
+			}
 			break
 	}
 }
