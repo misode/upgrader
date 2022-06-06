@@ -117,10 +117,7 @@ function fixEntity(data: any) {
 		}
 		delete data.lightning_bolt
 	} else if (data.catType) {
-		let variant = data.catType.replace(/^textures\/entity\/cat\/([a-z_]+).png/, '$1')
-		if (variant === 'british_shorthair') {
-			variant = 'british'
-		}
+		const variant = data.catType.replace(/^textures\/entity\/cat\/([a-z_]+).png/, '$1')
 		data.type_specific = {
 			type: 'cat',
 			variant,
