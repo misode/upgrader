@@ -150,6 +150,16 @@ main {
 	color: #fff;
 }
 
+.donate {
+	display: flex;
+	align-items: center;
+}
+
+.donate svg {
+	fill: #db61a2;
+	margin-right: 8px;
+}
+
 .packs {
 	display: flex;
 	flex-direction: column;

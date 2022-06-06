@@ -121,6 +121,10 @@ export function App() {
 		<div class="footer">
 			<p>Developed by Misode</p>
 			<p>Source code on <a href="https://github.com/misode/upgrader" target="_blank">GitHub</a></p>
+			<p class="donate">
+				{Octicon.heart}
+				<a href="https://ko-fi.com/misode" target="_blank">Donate</a>
+			</p>
 		</div>
 		<div class="main-errors">
 			{errors.map(e => {
