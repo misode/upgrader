@@ -44,7 +44,7 @@ function fixCriterion(data: any) {
 		case 'hero_of_the_village':
 		case 'voluntary_exile':
 			if (typeof data.conditions !== 'object') break
-			const location = data.conditions.location ? data.condition.location : data.conditions.player ? undefined : data.conditions
+			const location = data.conditions.location ? data.conditions.location : data.conditions.player ? undefined : data.conditions
 			const player = data.conditions.player
 			data.conditions = {
 				player: mergePlayerLocation(player, location),
