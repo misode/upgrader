@@ -140,7 +140,7 @@ function mergePlayerLocation(player: any, location: any) {
 	if (player === undefined) return { location }
 	if (location === undefined) return player
 	if (Array.isArray(player) && player.length >= 1) {
-		return [player, { type: 'minecraft:entity_properties', predicate: { location } }]
+		return [...player, { condition: 'minecraft:entity_properties', entity: 'this', predicate: { location } }]
 	}
 	return {
 		...player,
