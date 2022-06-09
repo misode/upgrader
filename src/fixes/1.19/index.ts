@@ -2,7 +2,6 @@ import { Fix } from '../../Fix'
 import { Biome } from './Biome'
 import { Carver } from './Carver'
 import { Dimension } from './Dimension'
-import { DimensionType } from './DimensionType'
 import { Feature } from './Feature'
 import { Function } from './Function'
 import { NoiseSettings } from './NoiseSettings'
@@ -15,7 +14,6 @@ export const Fixes19 = Fix.version('1.18.2', '1.19', Fix.groupProblems(
 		Biome,
 		Carver,
 		Dimension,
-		DimensionType,
 		NoiseSettings,
 		Structure,
 		Feature,
