@@ -9,7 +9,6 @@ import { ProcessorList } from './ProcessorList'
 import { StructureFeature } from './StructureFeature'
 
 export const Fixes182 = Fix.version('1.18.1', '1.18.2', Fix.groupProblems(
-	Fix.debug('1.18.2 fixes'),
 	Fix.when('worldgen',
 		DimensionType,
 		NoiseSettings,

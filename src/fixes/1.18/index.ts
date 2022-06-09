@@ -5,7 +5,6 @@ import { NoiseSettings } from './NoiseSettings'
 
 export const Fixes18 = Fix.all(
 	Fix.version('21w44a', '1.18.1', Fix.groupProblems(
-		Fix.debug('1.18 fixes'),
 		Fix.when('worldgen',
 			Feature,
 			NoiseSettings
@@ -13,7 +12,6 @@ export const Fixes18 = Fix.all(
 	)),
 	Fix.versionInclusive('1.18.1', '1.18.1',
 		Fix.when('featureCycles',
-			Fix.debug('Checking feature order cycle'),
 			CycleOrder
 		)
 	)

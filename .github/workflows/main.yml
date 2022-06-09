@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Test and deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  main:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -21,6 +21,10 @@ jobs:
       run: |
         npm install
         npm run build
+
+    - name: Test
+      run: |
+        npm run test
 
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3

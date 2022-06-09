@@ -5,6 +5,8 @@
 		"dev": "vite",
 		"build": "tsc && vite build --base=/upgrader/",
 		"serve": "vite preview --base=/upgrader/",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
 		"lint": "eslint . --ext .ts"
 	},
 	"devDependencies": {
@@ -17,7 +19,8 @@
 		"jszip": "^3.7.1",
 		"preact": "^10.5.13",
 		"typescript": "^4.2.3",
-		"vite": "^2.8.4"
+		"vite": "^2.8.4",
+		"vitest": "^0.14.1"
 	},
 	"dependencies": {
 		"sourcemapped-stacktrace": "^1.1.11",
