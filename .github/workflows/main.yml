@@ -17,14 +17,17 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Build
+    - name: Install
       run: |
         npm install
-        npm run build
 
     - name: Test
       run: |
         npm run test
+
+    - name: Build
+      run: |
+        npm run build
 
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
