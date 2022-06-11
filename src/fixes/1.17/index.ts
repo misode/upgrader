@@ -9,6 +9,7 @@ import { Predicates } from './Predicates'
 import { StructureFeature } from './StructureFeature'
 
 export const Fixes17 = Fix.version('1.16.5', '1.17.1', Fix.groupProblems(
+	Fix.packFormat(7),
 	Fix.when('ids', Ids),
 	Fix.when('predicates', Predicates),
 	Fix.when('functions', Function),
@@ -19,5 +20,4 @@ export const Fixes17 = Fix.version('1.16.5', '1.17.1', Fix.groupProblems(
 		Carver,
 		Feature
 	),
-	Fix.packFormat(7),
 ))

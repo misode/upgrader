@@ -9,6 +9,7 @@ import { Predicates } from './Predicates'
 import { Structure } from './Structure'
 
 export const Fixes19 = Fix.version('1.18.2', '1.19', Fix.groupProblems(
+	Fix.packFormat(10),
 	Fix.when('worldgen',
 		Biome,
 		Carver,
@@ -23,5 +24,4 @@ export const Fixes19 = Fix.version('1.18.2', '1.19', Fix.groupProblems(
 	Fix.when('functions',
 		Function,
 	),
-	Fix.packFormat(10),
 ))
