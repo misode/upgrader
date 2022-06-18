@@ -91,6 +91,8 @@ function setup(setup: { weight?: number, vines?: boolean, can_be_cold?: boolean,
 function fixStructureSet(data: any, name: string, ctx: FixContext) {
 	if (typeof data !== 'object') return
 
+	if (!data.structures[0]?.structure) return
+
 	const structure = ctx.read('worldgen/structure', data.structures[0].structure)?.data
 	if (!structure) return
 
