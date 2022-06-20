@@ -13,5 +13,7 @@ export const DimensionType = Fix.all(
 )
 
 function fixDimensionType(data: any) {
-	data.infiniburn = '#' + data.infiniburn
+	if (!data.infiniburn.startsWith('#')) {
+		data.infiniburn = '#' + data.infiniburn
+	}
 }

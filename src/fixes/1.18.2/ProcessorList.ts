@@ -19,7 +19,9 @@ function fixProcessor(data: any) {
 	const type = data.processor_type.replace(/^minecraft:/, '')
 	switch (type) {
 		case 'protected_blocks':
-			data.value = '#' + data.value
+			if (!data.value.startsWith('#')) {
+				data.value = '#' + data.value
+			}
 	}
 }
 

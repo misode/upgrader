@@ -40,18 +40,26 @@ function fixConfiguredFeature(data: any) {
 		case 'waterlogged_vegetation_patch':
 			fixPlacedFeature(data.config.vegetation_feature)
 			if (typeof data.config === 'object') {
-				data.config.replaceable = '#' + data.config.replaceable
+				if (!data.config.replaceable.startsWith('#')) {
+					data.config.replaceable = '#' + data.config.replaceable
+				}
 			}
 			break
 		case 'geode':
 			if (typeof data.config?.blocks === 'object') {
-				data.config.blocks.cannot_replace = '#' + data.config.blocks.cannot_replace
-				data.config.blocks.invalid_blocks = '#' + data.config.blocks.invalid_blocks
+				if (!data.config.blocks.cannot_replace.startsWith('#')) {
+					data.config.blocks.cannot_replace = '#' + data.config.blocks.cannot_replace
+				}
+				if (!data.config.blocks.invalid_blocks.startsWith('#')) {
+					data.config.blocks.invalid_blocks = '#' + data.config.blocks.invalid_blocks
+				}
 			}
 			break
 		case 'root_system':
 			if (typeof data.config === 'object') {
-				data.config.root_replaceable = '#' + data.config.root_replaceable
+				if (!data.config.root_replaceable.startsWith('#')) {
+					data.config.root_replaceable = '#' + data.config.root_replaceable
+				}
 			}
 	}
 }
