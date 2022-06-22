@@ -21,7 +21,7 @@ export namespace Version {
 		return ord(source) <= ord(to) && ord(target) >= ord(from)
 	}
 
-	export function isWorkInProgress(source: Version, target: Version) {
-		return Version.includes(source, target, '1.18.2', '1.19')
+	export function isWorkInProgress(_source: Version, _target: Version) {
+		return false
 	}
 }
