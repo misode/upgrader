@@ -20,7 +20,7 @@ export const Predicates = Fix.all(
 )
 
 function fixCriterion(data: any) {
-	if (typeof data.conditions !== 'object') return
+	if (typeof data?.conditions !== 'object') return
 
 	fixEntity(data.conditions.entity)
 	fixEntity(data.conditions.player)
@@ -45,18 +45,30 @@ function fixCriterion(data: any) {
 }
 
 function fixPool(data: any) {
+	if (typeof data !== 'object') return
+
 	data.entries?.forEach(fixEntry)
 	data.conditions?.forEach(fixCondition)
 }
 
 function fixEntry(data: any) {
+	if (typeof data !== 'object') return
+
 	data.children?.forEach(fixEntry)
 	data.conditions?.forEach(fixCondition)
 }
 
 function fixCondition(data: any) {
-	const condition = data.condition.replace(/^minecraft:/, '')
+	if (typeof data !== 'object') return
+
+	const condition = data.condition?.replace(/^minecraft:/, '')
 	switch (condition) {
+		case 'alternative':
+			data.terms?.forEach(fixCondition)
+			break
+		case 'inverted':
+			fixCondition(data.term)
+			break
 		case 'match_tool':
 			fixItem(data.predicate)
 			break
