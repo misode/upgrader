@@ -1,9 +1,11 @@
 export const Versions = ['1.16.5', '1.17.1', '21w44a', '1.18.1', '1.18.2', '1.19'] as const
+export const PackFormats = [6, 7, 8, 8, 9, 10]
 export type Version = typeof Versions[number]
+export type VersionOrAuto = Version | 'auto'
 
 export namespace Version {
-	export const DEFAULT_SOURCE: Version = '1.17.1'
-	export const DEFAULT_TARGET: Version = '1.18.1'
+	export const DEFAULT_SOURCE: VersionOrAuto = 'auto'
+	export const DEFAULT_TARGET: Version = '1.19'
 
 	export function ord(version: Version): number {
 		return Versions.indexOf(version)
@@ -23,5 +25,23 @@ export namespace Version {
 
 	export function isWorkInProgress(_source: Version, _target: Version) {
 		return false
+	}
+
+	export function autoDetect(packFormat: number): Version | undefined {
+		const index = PackFormats.lastIndexOf(packFormat)
+		if (index === -1) return undefined
+		return Versions[index]
+	}
+
+	export function autoDetectOrFallback(packFormat: number): Version {
+		const detected = autoDetect(packFormat)
+		if (detected !== undefined) return detected
+		if (packFormat < PackFormats[0]) return Versions[0]
+		return Versions[Versions.length - 1]
+	}
+
+	export function packFormat(version: Version): number {
+		const index = Versions.indexOf(version)
+		return PackFormats[index]
 	}
 }

@@ -7,6 +7,7 @@ import { VersionPicker } from './components/VersionPicker'
 import type { FixConfig } from './Fix'
 import { hexId, Pack } from './Pack'
 import { Store } from './Store'
+import type { VersionOrAuto } from './Version'
 import { Version } from './Version'
 
 export type AppError = {
@@ -19,7 +20,7 @@ export type AppError = {
 export function App() {
 	const [packs, setPacks] = useState<Pack[]>([])
 	const [errors, setErrors] = useState<AppError[]>([])
-	const [source, setSource] = useState<Version>(Store.getSource())
+	const [source, setSource] = useState<VersionOrAuto>(Store.getSource())
 	const [target, setTarget] = useState<Version>(Store.getTarget())
 	const [config, setConfig] = useState<FixConfig>({
 		functions: true,
@@ -29,11 +30,14 @@ export function App() {
 		packFormat: true,
 		featureCycles: true,
 	})
-	const changeSource = (source: Version) => {
+	const changeSource = (source: VersionOrAuto) => {
 		Store.setSource(source)
 		setSource(source)
 	}
-	const changeTarget = (target: Version) => {
+	const changeTarget = (target: VersionOrAuto) => {
+		if (target === 'auto') {
+			target = Version.DEFAULT_TARGET
+		}
 		Store.setTarget(target)
 		setTarget(target)
 	}
@@ -103,10 +107,10 @@ export function App() {
 		</>}
 		<div class="drop">
 			<h1>Drop data pack here</h1>
-			<p>Convert from <VersionPicker value={source} onChange={changeSource}/> to <VersionPicker value={target} onChange={changeTarget}/></p>
-			{Version.order(target, source)
+			<p>Convert from <VersionPicker value={source} onChange={changeSource} allowAuto/> to <VersionPicker value={target} onChange={changeTarget}/></p>
+			{(source !== 'auto' && Version.order(target, source))
 				? <p class="error-message">Invalid version range</p>
-				: Version.isWorkInProgress(source, target)
+				: (source !== 'auto' && Version.isWorkInProgress(source, target))
 					? <p class="warning-message">This upgrade is still being worked on</p>
 					: null}
 		</div>

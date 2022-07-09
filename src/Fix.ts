@@ -97,10 +97,7 @@ export namespace Fix {
 	}
 
 	export function packFormat(format: number): Fix {
-		return Fix.all(
-			Fix.assert(pack => pack.meta.data.pack.pack_format < format, `This pack already has pack_format ${format} or higher and cannot be upgraded.`),
-			Fix.when('packFormat', async pack => pack.meta.data.pack.pack_format = format),
-		)
+		return Fix.when('packFormat', async pack => pack.meta.data.pack.pack_format = format)
 	}
 
 	export function rename(from: string, to: string): Fix {

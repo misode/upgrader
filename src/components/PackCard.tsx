@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { FixConfig } from '../Fix'
 import { Pack } from '../Pack'
-import type { Version } from '../Version'
+import type { VersionOrAuto } from '../Version'
+import { Version } from '../Version'
 import { Octicon } from './Octicon'
 
 type AlertData = {
@@ -20,7 +21,7 @@ type PromptData = {
 type PackCardProps = {
 	pack: Pack,
 	config: FixConfig,
-	source: Version,
+	source: VersionOrAuto,
 	target: Version,
 	doDownload: number,
 	onError: (error: Error) => unknown,
@@ -38,6 +39,13 @@ export function PackCard({ pack, config, source, target, onError, onRemove, onDo
 	const promptDone = useRef<(value: string) => void>(() => {})
 
 	const downloadName = `${pack.name}_${target}.zip`
+	const detectedSource = useMemo(() => {
+		if (source !== 'auto') return source
+		return Version.autoDetect(pack.meta.data.pack.pack_format) ?? '???'
+	}, [])
+	const detectedTarget = useMemo(() => {
+		return target
+	}, [])
 
 	const onPrompt = (title: string, message?: string, actions?: string[], info?: string[]) => {
 		setPrompt({ title, message, actions: actions ?? ['Confirm'], info })
@@ -94,6 +102,7 @@ export function PackCard({ pack, config, source, target, onError, onRemove, onDo
 				{Octicon.alert}
 			</div>}
 			<span class="pack-name">{pack.name.replace(/\.zip$/, '')}</span>
+			<span class="pack-version">{detectedSource} → {detectedTarget}</span>
 			<div class="pack-status remove" onClick={onRemove}>
 				{Octicon.x}
 			</div>

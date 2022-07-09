@@ -4,7 +4,8 @@ import JSZip from 'jszip'
 import stripJsonComments from 'strip-json-comments'
 import type { FixConfig, FixContext } from './Fix'
 import { Fixes } from './fixes'
-import type { Version } from './Version'
+import type { VersionOrAuto } from './Version'
+import { Version } from './Version'
 
 export const categories = [
 	'advancements',
@@ -201,11 +202,33 @@ export namespace Pack {
 		if (pack.status !== 'loaded') {
 			throw new Error(`Cannot upgrade pack with status '${pack.status}'.`)
 		}
+
+		let source: Version
+		const packFormat = pack.meta.data.pack.pack_format
+		if (config.source === 'auto') {
+			const detectedVersion = Version.autoDetect(packFormat)
+			if (detectedVersion === undefined) {
+				source = Version.autoDetectOrFallback(packFormat)
+				config.onWarning(`No matching version found for pack format ${packFormat}, using fallback ${source}`)
+			} else {
+				source = detectedVersion
+			}
+		} else {
+			if (packFormat !== Version.packFormat(config.source)) {
+				throw new Error(`Found pack format ${packFormat}, which does not match version ${config.source}`)
+			}
+			source = config.source
+		}
+		const target = config.target
+		if (Version.order(target, source)) {
+			throw new Error(`Invalid version range: ${source} > ${target}`)
+		}
+
 		const ctx: FixContext = {
 			warn: config.onWarning,
 			prompt: config.onPrompt,
-			source: () => config.source,
-			target: () => config.target,
+			source: () => source,
+			target: () => target,
 			config: (key: keyof FixConfig) => config.features[key],
 			read: (category: string, name: string) => {
 				return pack.data[category].find(f =>
@@ -220,6 +243,7 @@ export namespace Pack {
 				})
 			},
 		}
+
 		await Fixes(pack, ctx)
 		pack.status = 'upgraded'
 	}
@@ -227,7 +251,7 @@ export namespace Pack {
 
 type UpgradeConfig = {
 	features: FixConfig,
-	source: Version,
+	source: VersionOrAuto,
 	target: Version,
 	onPrompt: FixContext['prompt'],
 	onWarning: (message: string, files?: string[]) => unknown,

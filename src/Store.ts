@@ -1,3 +1,4 @@
+import type { VersionOrAuto } from './Version'
 import { Version, Versions } from './Version'
 
 type Config = {
@@ -17,7 +18,7 @@ export namespace Store {
 		localStorage.setItem(KEY, JSON.stringify(data))
 	}
 
-	export function getSource(): Version {
+	export function getSource(): VersionOrAuto {
 		const sourceOverride = new URLSearchParams(location.search).get('from')
 		if (sourceOverride && Versions.includes(sourceOverride as Version)) {
 			return sourceOverride as Version
@@ -29,7 +30,7 @@ export namespace Store {
 		return Version.DEFAULT_SOURCE
 	}
 
-	export function setSource(source: Version) {
+	export function setSource(source: VersionOrAuto) {
 		set({ source })
 	}
 
