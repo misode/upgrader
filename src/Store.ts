@@ -20,12 +20,12 @@ export namespace Store {
 
 	export function getSource(): VersionOrAuto {
 		const sourceOverride = new URLSearchParams(location.search).get('from')
-		if (sourceOverride && Versions.includes(sourceOverride as Version)) {
-			return sourceOverride as Version
+		if (sourceOverride && (sourceOverride === 'auto' || Versions.includes(sourceOverride as Version))) {
+			return sourceOverride as VersionOrAuto
 		}
 		const source = get().source
-		if (source && Versions.includes(source as Version)) {
-			return source as Version
+		if (source && (source === 'auto' || Versions.includes(source as Version))) {
+			return source as VersionOrAuto
 		}
 		return Version.DEFAULT_SOURCE
 	}
