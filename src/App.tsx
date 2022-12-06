@@ -110,7 +110,7 @@ export function App() {
 			<p>Convert from <VersionPicker value={source} onChange={changeSource} allowAuto/> to <VersionPicker value={target} onChange={changeTarget}/></p>
 			{(source !== 'auto' && Version.order(target, source))
 				? <p class="error-message">Invalid version range</p>
-				: (source !== 'auto' && Version.isWorkInProgress(source, target))
+				: (Version.isWorkInProgress(source === 'auto' ? target : source, target))
 					? <p class="warning-message">This upgrade is still being worked on</p>
 					: null}
 		</div>
