@@ -39,27 +39,19 @@ function fixConfiguredFeature(data: any) {
 		case 'vegetation_patch':
 		case 'waterlogged_vegetation_patch':
 			fixPlacedFeature(data.config.vegetation_feature)
-			if (typeof data.config === 'object') {
-				if (!data.config.replaceable.startsWith('#')) {
-					data.config.replaceable = '#' + data.config.replaceable
-				}
-			}
+			fixTag(data.config, 'replaceable')
 			break
 		case 'geode':
-			if (typeof data.config?.blocks === 'object') {
-				if (!data.config.blocks.cannot_replace.startsWith('#')) {
-					data.config.blocks.cannot_replace = '#' + data.config.blocks.cannot_replace
-				}
-				if (!data.config.blocks.invalid_blocks.startsWith('#')) {
-					data.config.blocks.invalid_blocks = '#' + data.config.blocks.invalid_blocks
-				}
-			}
+			fixTag(data.config?.blocks, 'cannot_replace')
+			fixTag(data.config?.blocks, 'invalid_blocks')
 			break
 		case 'root_system':
-			if (typeof data.config === 'object') {
-				if (!data.config.root_replaceable.startsWith('#')) {
-					data.config.root_replaceable = '#' + data.config.root_replaceable
-				}
-			}
+			fixTag(data.config, 'root_replaceable')
+	}
+}
+
+function fixTag(obj: any, key: string) {
+	if (typeof obj === 'object' && typeof obj[key] === 'string') {
+		obj[key] = '#' + obj[key]
 	}
 }
