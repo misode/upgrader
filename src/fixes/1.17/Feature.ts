@@ -13,6 +13,10 @@ export const Feature = Fix.all(
 function fixFeature(data: any, ctx: FixContext) {
 	if (typeof data !== 'object') return
 
+	if (!data.type) {
+		data.type = data.name
+		delete data.name
+	}
 	const type = data.type.replace(/^minecraft:/, '')
 	switch (type) {
 		case 'basalt_columns':
@@ -213,6 +217,10 @@ function getSapling(foliage: any) {
 function fixDecorator(data: any, ctx: FixContext) {
 	if (typeof data !== 'object') return
 
+	if (!data.type) {
+		data.type = data.name
+		delete data.name
+	}
 	const type = data.type.replace(/^minecraft:/, '')
 	switch (type) {
 		case 'carving_mask':
