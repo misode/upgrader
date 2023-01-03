@@ -1,5 +1,5 @@
 import type { VersionOrAuto } from './Version'
-import { Version, Versions } from './Version'
+import { Version, VersionKeys } from './Version'
 
 type Config = {
 	source?: string,
@@ -20,11 +20,11 @@ export namespace Store {
 
 	export function getSource(): VersionOrAuto {
 		const sourceOverride = new URLSearchParams(location.search).get('from')
-		if (sourceOverride && (sourceOverride === 'auto' || Versions.includes(sourceOverride as Version))) {
+		if (sourceOverride && (sourceOverride === 'auto' || VersionKeys.includes(sourceOverride as Version))) {
 			return sourceOverride as VersionOrAuto
 		}
 		const source = get().source
-		if (source && (source === 'auto' || Versions.includes(source as Version))) {
+		if (source && (source === 'auto' || VersionKeys.includes(source as Version))) {
 			return source as VersionOrAuto
 		}
 		return Version.DEFAULT_SOURCE
@@ -36,11 +36,11 @@ export namespace Store {
 
 	export function getTarget(): Version {
 		const targetOverride = new URLSearchParams(location.search).get('to')
-		if (targetOverride && Versions.includes(targetOverride as Version)) {
+		if (targetOverride && VersionKeys.includes(targetOverride as Version)) {
 			return targetOverride as Version
 		}
 		const target = get().target
-		if (target && Versions.includes(target as Version)) {
+		if (target && VersionKeys.includes(target as Version)) {
 			return target as Version
 		}
 		return Version.DEFAULT_TARGET

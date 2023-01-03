@@ -1,6 +1,6 @@
 import { useRef } from 'preact/hooks'
-import type { Version, VersionOrAuto } from '../Version'
-import { Versions } from '../Version'
+import type { VersionOrAuto } from '../Version'
+import { Version, VersionKeys } from '../Version'
 
 type VersionPickerProps = {
 	value: VersionOrAuto,
@@ -14,6 +14,8 @@ export function VersionPicker({ value, onChange, allowAuto }: VersionPickerProps
 	}
 	return <select class="version-picker" ref={select} value={value} onChange={change}>
 		{allowAuto && <option value="auto">Auto-detect</option>}
-		{Versions.map(v => <option value={v}>{v}</option>)}
+		{VersionKeys
+			.filter(v => v !== '21w44a')
+			.map(v => <option value={v}>{Version.displayName(v)}</option>)}
 	</select>
 }

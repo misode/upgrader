@@ -102,7 +102,7 @@ export function PackCard({ pack, config, source, target, onError, onRemove, onDo
 				{Octicon.alert}
 			</div>}
 			<span class="pack-name">{pack.name.replace(/\.zip$/, '')}</span>
-			<span class="pack-version">{detectedSource} → {detectedTarget}</span>
+			<span class="pack-version">{Version.displayName(detectedSource)} → {Version.displayName(detectedTarget)}</span>
 			<div class="pack-status remove" onClick={onRemove}>
 				{Octicon.x}
 			</div>
