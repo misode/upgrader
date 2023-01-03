@@ -24,13 +24,13 @@ export namespace Version {
 	}
 
 	export function isWorkInProgress(_source: Version, _target: Version) {
-		return _target === '1.19.3'
+		return false
 	}
 
 	export function autoDetect(packFormat: number): Version | undefined {
 		const index = PackFormats.indexOf(packFormat)
 		if (index === -1) return undefined
-		if (index === 8) return '1.18.1' // Return 1.18.1 instead of 21w44a
+		if (packFormat === 8) return '1.18.1' // Return 1.18.1 instead of 21w44a
 		return Versions[index]
 	}
 
