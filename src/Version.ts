@@ -7,15 +7,16 @@ const Versions = {
 	'1.18.2': '1.18.2',
 	'1.19':   '1.19—1.19.2',
 	'1.19.3': '1.19.3',
+	'1.19.4': '1.19.4',
 }
 export type Version = keyof typeof Versions
 export const VersionKeys = Object.keys(Versions) as Version[]
-export const PackFormats = [6, 7, 8, 8, 9, 10, 10]
+export const PackFormats = [6, 7, 8, 8, 9, 10, 10, 12]
 export type VersionOrAuto = Version | 'auto'
 
 export namespace Version {
 	export const DEFAULT_SOURCE: VersionOrAuto = 'auto'
-	export const DEFAULT_TARGET: Version = '1.19.3'
+	export const DEFAULT_TARGET: Version = '1.19.4'
 
 	export function displayName(version: string): string {
 		return VersionKeys.includes(version as Version) ? Versions[version as Version] : version
@@ -38,7 +39,7 @@ export namespace Version {
 	}
 
 	export function isWorkInProgress(_source: Version, _target: Version) {
-		return false
+		return _target === '1.19.4'
 	}
 
 	export function autoDetect(packFormat: number): Version | undefined {
