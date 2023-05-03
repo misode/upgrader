@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { createUpgrader } from './util'
 
 describe('1.19.4', () => {
-	const upgrade = createUpgrader('1.19.3', '1.19.4', 10)
+	const upgrade = createUpgrader('1.19.3', '1.19.4')
 
 	test('damage source predicate', async () => {
 		const pack = await upgrade({

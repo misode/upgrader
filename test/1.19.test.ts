@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { createUpgrader } from './util'
 
 describe('1.19', () => {
-	const upgrade = createUpgrader('1.18.2', '1.19', 9)
+	const upgrade = createUpgrader('1.18.2', '1.19')
 
 	test('commands', async () => {
 		const pack = await upgrade({

@@ -1,6 +1,6 @@
 import type { PackFile } from '../src/Pack'
 import { categories, Pack } from '../src/Pack'
-import type { Version } from '../src/Version'
+import { Version } from '../src/Version'
 
 const Categories = [...categories, 'functions'] as const
 
@@ -8,7 +8,7 @@ type Category = typeof Categories[number]
 
 type PackData = Record<Category, Record<string, unknown>>
 
-export function createUpgrader(from: Version, to: Version, format: number) {
+export function createUpgrader(from: Version, to: Version, format?: number) {
 	return async (files: Partial<PackData>): Promise<PackData> => {
 
 		const pack: Pack = {
@@ -19,7 +19,7 @@ export function createUpgrader(from: Version, to: Version, format: number) {
 				name: 'pack.mcmeta',
 				data: {
 					pack: {
-						pack_format: format,
+						pack_format: format ?? Version.packFormat(from),
 						description: '',
 					},
 				},
