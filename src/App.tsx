@@ -111,7 +111,7 @@ export function App() {
 			{(source !== 'auto' && Version.order(target, source))
 				? <p class="error-message">Invalid version range</p>
 				: (Version.isWorkInProgress(source === 'auto' ? target : source, target))
-					? <p class="warning-message">This upgrade is still being worked on</p>
+					? <p class="warning-message">This tool is no longer maintained past 1.20</p>
 					: null}
 		</div>
 		<div class="configs">
